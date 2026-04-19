@@ -13,7 +13,7 @@ import {
   WarningCircleIcon,
 } from "~/sidebar/icons";
 import { cn, copyToClipboard } from "~/sidebar/utils";
-import { captureCroppedScreenshot } from "~/sidebar/screenshot";
+import { captureCroppedScreenshot, persistScreenshot } from "~/sidebar/screenshot";
 import { createSelectionContext } from "~/sidebar/selection-context";
 import { Kbd, SubmitButton, Tooltip } from "~/sidebar/components";
 import { createSelection } from "~/sidebar/selection";
@@ -169,6 +169,71 @@ const Sidebar = () => {
     return true;
   };
 
+  // Returns null (rather than the original annotation) when we expected to
+  // resolve a dataURL but the webhook was unreachable — lets callers distinguish
+  // "nothing to resolve" from "resolve failed" and flash an error accordingly.
+  const resolveAnnotationScreenshot = async (
+    annotation: AnnotationType,
+  ): Promise<AnnotationType | null> => {
+    if (!annotation.screenshot || !annotation.screenshot.startsWith("data:")) return annotation;
+    const url = webhookUrl();
+    if (!webhookEnabled() || !url) return annotation;
+    const path = await persistScreenshot(annotation.screenshot, url);
+    if (!path) return null;
+    setAnnotations((v) => v.map((a) => (a.id === annotation.id ? { ...a, screenshot: path } : a)));
+    return { ...annotation, screenshot: path };
+  };
+
+  const buildAdHocCopyMd = async (
+    required: NonNullable<Awaited<ReturnType<typeof requireSelectionAndContext>>>,
+    currentComment: string | undefined,
+  ): Promise<string> => {
+    let screenshot: string | undefined;
+    if (webhookEnabled()) {
+      const url = webhookUrl();
+      const dataUrl = await captureCroppedScreenshot(
+        required.context.boundingBox,
+        required.context.page.devicePixelRatio,
+      );
+      if (dataUrl && url) {
+        const path = await persistScreenshot(dataUrl, url);
+        if (path) {
+          screenshot = path;
+          setWebhookFailed(false);
+          setWebhookError(null);
+        } else {
+          flashWebhookError("Could not reach webhook");
+        }
+      }
+    }
+    return toMd(
+      createAnnotation({
+        comment: currentComment,
+        screenshot,
+        selection: required.selection,
+        context: required.context,
+      }),
+    );
+  };
+
+  const buildListCopyMd = async (
+    list: AnnotationType[],
+    batchComment: string | undefined,
+  ): Promise<string> => {
+    if (!webhookEnabled()) {
+      return toBatchMd(list, { comment: batchComment, includeScreenshot: false });
+    }
+    const resolved = await Promise.all(list.map(resolveAnnotationScreenshot));
+    if (resolved.some((a) => a === null)) {
+      flashWebhookError("Could not reach webhook");
+      return toBatchMd(list, { comment: batchComment, includeScreenshot: false });
+    }
+    return toBatchMd(resolved as AnnotationType[], {
+      comment: batchComment,
+      includeScreenshot: true,
+    });
+  };
+
   const flashSubmittedAndCleanBatch = (annotationIds: string[]) => {
     clearTimeout(hasSubmittedTimeout);
     setHasSubmitted(true);
@@ -189,16 +254,8 @@ const Sidebar = () => {
     const required = await requireSelectionAndContext();
     if (!required) return;
 
-    const success = await copyToClipboard(
-      toMd(
-        createAnnotation({
-          comment: comment() || undefined,
-          selection: required.selection,
-          context: required.context,
-        }),
-        { includeScreenshot: false },
-      ),
-    );
+    const md = await buildAdHocCopyMd(required, comment() || undefined);
+    const success = await copyToClipboard(md);
 
     clearTimeout(hasCopiedAllTimeout);
     setHasCopiedAll(success);
@@ -213,9 +270,8 @@ const Sidebar = () => {
       return handleCopy();
     }
 
-    const success = await copyToClipboard(
-      toBatchMd(annotations(), { comment: comment(), includeScreenshot: false }),
-    );
+    const md = await buildListCopyMd(annotations(), comment());
+    const success = await copyToClipboard(md);
 
     clearTimeout(hasCopiedAllTimeout);
     setHasCopiedAll(success);
@@ -288,16 +344,7 @@ const Sidebar = () => {
         const required = await requireSelectionAndContext();
         if (!required) return;
 
-        await copyToClipboard(
-          toMd(
-            createAnnotation({
-              comment: currentComment,
-              selection: required.selection,
-              context: required.context,
-            }),
-            { includeScreenshot: false },
-          ),
-        );
+        await copyToClipboard(await buildAdHocCopyMd(required, currentComment));
 
         setHasSubmitted(true);
         hasSubmittedTimeout = setTimeout(() => setHasSubmitted(false), 2000);
@@ -321,12 +368,7 @@ const Sidebar = () => {
         const annotationIds = [...batchAnnotationIds()];
         if (!annotationIds.length) return;
 
-        await copyToClipboard(
-          toBatchMd(batchAnnotations(), {
-            comment: currentComment,
-            includeScreenshot: false,
-          }),
-        );
+        await copyToClipboard(await buildListCopyMd(batchAnnotations(), currentComment));
 
         flashSubmittedAndCleanBatch(annotationIds);
         break;

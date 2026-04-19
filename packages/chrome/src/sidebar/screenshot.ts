@@ -54,3 +54,26 @@ export async function captureCroppedScreenshot(
     return null;
   }
 }
+
+export async function persistScreenshot(
+  dataUrl: string,
+  webhookUrl: string,
+): Promise<string | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  try {
+    const response = await fetch(`${webhookUrl.replace(/\/?$/, "/")}screenshot`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ screenshot: dataUrl }),
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    const { path } = (await response.json()) as { path: string };
+    return path;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
