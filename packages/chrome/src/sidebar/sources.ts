@@ -5,16 +5,18 @@ export type SourceLocation = {
 };
 
 export type SourceContext = {
-  framework: "svelte" | "react";
+  framework: "svelte" | "react" | "vue";
   location?: SourceLocation;
 };
 
 /**
  * Returns the first supported framework source context for an element.
- * Checks Svelte first, then React.
+ * Checks Svelte first, then React, then Vue.
  *
  * Svelte: reads `__svelte_meta` from the element or its ancestor chain (dev mode).
  * React: walks the Fiber chain looking for `_debugStack` (dev mode).
+ * Vue: reads `__v_inspector` vnode prop or `data-v-inspector` attribute injected
+ * by vite-plugin-vue-inspector along the ancestor chain.
  */
 export function getSourceContext(element: Element): SourceContext | undefined {
   const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -146,5 +148,64 @@ export function getSourceContext(element: Element): SourceContext | undefined {
     return { framework: "react" };
   };
 
-  return getSvelteSourceContext() ?? getReactSourceContext();
+  const parseVueInspector = (value: unknown): SourceLocation | undefined => {
+    if (typeof value !== "string") {
+      return undefined;
+    }
+
+    const match = value.match(/^(.+):(\d+):(\d+)$/);
+
+    if (!match) {
+      return undefined;
+    }
+
+    return { file: match[1]!, line: Number(match[2]), column: Number(match[3]) };
+  };
+
+  type VueVNode = {
+    props?: Record<string, unknown> | null;
+    ctx?: { vnode?: VueVNode | null } | null;
+  };
+
+  const readVueInspector = (el: Element): SourceLocation | undefined => {
+    const vnode = (el as Element & { __vnode?: VueVNode | null }).__vnode ?? null;
+    const fromVnode = parseVueInspector(vnode?.props?.__v_inspector);
+
+    if (fromVnode) {
+      return fromVnode;
+    }
+
+    const fromCtx = parseVueInspector(vnode?.ctx?.vnode?.props?.__v_inspector);
+
+    if (fromCtx) {
+      return fromCtx;
+    }
+
+    return parseVueInspector(el.getAttribute("data-v-inspector"));
+  };
+
+  /**
+   * Walks the DOM ancestor chain looking for `__v_inspector` on the element's
+   * vnode (or the `data-v-inspector` attribute fallback) injected by
+   * vite-plugin-vue-inspector.
+   *
+   * @tested vite-plugin-vue-inspector 5.x via vite-plugin-vue-devtools
+   */
+  const getVueSourceContext = (): SourceContext | undefined => {
+    let next: Element | null = element;
+
+    while (next) {
+      const location = readVueInspector(next);
+
+      if (location) {
+        return { framework: "vue", location };
+      }
+
+      next = getParentElement(next);
+    }
+
+    return undefined;
+  };
+
+  return getSvelteSourceContext() ?? getReactSourceContext() ?? getVueSourceContext();
 }
