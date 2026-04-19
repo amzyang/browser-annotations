@@ -22,6 +22,10 @@ build:
 install-extension: build
     node packages/chrome/scripts/install.js
 
+# 独立启动 webhook server，不依赖 pi/claude。Send 路径内容打印到 stdout
+server:
+    BROWSER_ANNOTATIONS_PORT={{PORT}} node scripts/server.mjs
+
 # 启动 pi 会话并加载 browser-annotations 扩展（进入后输入 /browser-annotations 启动 webhook）
 pi:
     BROWSER_ANNOTATIONS_PORT={{PORT}} pnpm --filter @browser-annotations/pi dev
