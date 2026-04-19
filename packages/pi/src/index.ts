@@ -199,10 +199,17 @@ export default function browserAnnotationsExtension(pi: ExtensionAPI) {
       }
 
       try {
-        const contentType = req.headers["content-type"] || "";
         const rawBody = await readBody(req);
         const tmpDir = await ensureTmpDir(state);
 
+        if (req.url === "/screenshot") {
+          const { screenshot } = JSON.parse(rawBody) as { screenshot: string };
+          const path = await saveScreenshot(screenshot, tmpDir);
+          res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ path }));
+          return;
+        }
+
+        const contentType = req.headers["content-type"] || "";
         let content: string;
         let details: unknown;
 

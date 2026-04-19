@@ -126,9 +126,16 @@ mcpServer.oninitialized = async () => {
     }
 
     try {
-      const contentType = req.headers["content-type"] || "";
       const rawBody = await readBody(req);
 
+      if (req.url === "/screenshot") {
+        const { screenshot } = JSON.parse(rawBody) as { screenshot: string };
+        const path = await saveScreenshot(screenshot);
+        res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ path }));
+        return;
+      }
+
+      const contentType = req.headers["content-type"] || "";
       let content: string;
 
       if (contentType.includes("text/markdown")) {
