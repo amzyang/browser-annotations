@@ -5,6 +5,6 @@ export type SourceLocation = {
 };
 
 export type SourceContext = {
-  framework: "svelte" | "react" | "solid";
+  framework: "svelte" | "react" | "vue" | "solid";
   location?: SourceLocation;
 };

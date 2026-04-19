@@ -331,6 +331,58 @@ function getSelectionContextPayload() {
       return { framework: "react" };
     };
 
+    const parseVueInspector = (value: unknown): SourceLocation | undefined => {
+      if (typeof value !== "string") {
+        return undefined;
+      }
+
+      const match = value.match(/^(.+):(\d+):(\d+)$/);
+
+      if (!match) {
+        return undefined;
+      }
+
+      return { file: match[1]!, line: Number(match[2]), column: Number(match[3]) };
+    };
+
+    type VueVNode = {
+      props?: Record<string, unknown> | null;
+      ctx?: { vnode?: VueVNode | null } | null;
+    };
+
+    const readVueInspector = (el: Element): SourceLocation | undefined => {
+      const vnode = (el as Element & { __vnode?: VueVNode | null }).__vnode ?? null;
+      const fromVnode = parseVueInspector(vnode?.props?.__v_inspector);
+
+      if (fromVnode) {
+        return fromVnode;
+      }
+
+      const fromCtx = parseVueInspector(vnode?.ctx?.vnode?.props?.__v_inspector);
+
+      if (fromCtx) {
+        return fromCtx;
+      }
+
+      return parseVueInspector(el.getAttribute("data-v-inspector"));
+    };
+
+    const getVueSourceContext = (): SourceContext | undefined => {
+      let next: Element | null = element;
+
+      while (next) {
+        const location = readVueInspector(next);
+
+        if (location) {
+          return { framework: "vue", location };
+        }
+
+        next = getParentElement(next);
+      }
+
+      return undefined;
+    };
+
     const getSolidSourceContext = (): SourceContext | undefined => {
       if (!(globalThis as { Solid$$?: unknown }).Solid$$) {
         return undefined;
@@ -359,7 +411,12 @@ function getSelectionContextPayload() {
       return { framework: "solid" };
     };
 
-    return getSvelteSourceContext() ?? getReactSourceContext() ?? getSolidSourceContext();
+    return (
+      getSvelteSourceContext() ??
+      getReactSourceContext() ??
+      getVueSourceContext() ??
+      getSolidSourceContext()
+    );
   };
 
   const scopeElement = getScopeElement(selected);

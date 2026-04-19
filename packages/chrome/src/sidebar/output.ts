@@ -37,7 +37,7 @@ const toAnnotationMd = (
   }
 
   if (source?.location) {
-    const loc = `${source.location.file}:${source.location.line}`;
+    const loc = `${source.location.file}:${source.location.line}:${source.location.column}`;
     lines.push(`- **Source:** [\`${loc}\`](${source.location.file})`);
   }
 
