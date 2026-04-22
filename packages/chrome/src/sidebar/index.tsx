@@ -717,6 +717,17 @@ const Sidebar = () => {
               title=""
               class="flex field-sizing-content max-h-[4rlh] min-h-[2.5rlh] w-full resize-none rounded-sm border border-foreground/5 bg-foreground/2.5 p-2 text-xs hover:bg-foreground/4"
               placeholder={isBatching() ? "Care to elaborate? (optional)" : "What would you like?"}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                if (e.shiftKey) return;
+                if (e.metaKey || e.ctrlKey) return;
+                if (e.isComposing) return;
+                if (loading()) return;
+
+                e.preventDefault();
+                const target = isBatching() ? refs.submitButton : refs.addButton;
+                refs.form.requestSubmit(target);
+              }}
             ></textarea>
           </div>
           <div class="mt-2 flex items-start gap-2">
