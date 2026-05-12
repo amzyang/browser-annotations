@@ -14,8 +14,12 @@ const iconSet = {
 export default defineManifest({
   manifest_version: 3,
   name: "Browser Annotations",
-  description: "Capture feedback from the Chrome DevTools.",
+  description: "A Chrome DevTools extension to send feedback to your coding agent",
   version,
+  author: {
+    email: "wiebe@offday.studio",
+  },
+  homepage_url: "https://browser-annotations.dev/",
   icons: iconSet,
   permissions: ["storage"],
   host_permissions: ["<all_urls>"],
