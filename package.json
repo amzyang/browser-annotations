@@ -7,19 +7,24 @@
   ],
   "scripts": {
     "format": "oxfmt . --check",
+    "format:svelte": "prettier --check 'packages/web/src/**/*.svelte'",
     "format:fix": "oxfmt .",
+    "format:fix:svelte": "prettier --write 'packages/web/src/**/*.svelte'",
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
-    "check:format": "pnpm run format",
+    "check:format": "pnpm run format && pnpm run format:svelte",
     "check:lint": "pnpm run lint",
     "check:types": "pnpm -r --parallel run check:types",
     "check": "pnpm run check:lint && pnpm run check:format && pnpm run check:types",
-    "fix": "pnpm run lint:fix && pnpm run format:fix && pnpm run check",
+    "fix": "pnpm run lint:fix && pnpm run format:fix && pnpm run format:fix:svelte && pnpm run check",
     "version": "bash scripts/version.sh"
   },
   "devDependencies": {
     "oxfmt": "0.42.0",
-    "oxlint": "1.57.0"
+    "oxlint": "1.57.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-svelte": "^3.5.1",
+    "prettier-plugin-tailwindcss": "^0.7.2"
   },
   "packageManager": "pnpm@10.18.3",
   "pi": {

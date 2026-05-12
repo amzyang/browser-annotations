@@ -4,7 +4,7 @@
 
 Select an element, add feedback, and send it to your pi or Claude Code session.
 
-![Sending feedback from the Chrome DevTools to pi.](docs/screenshot.png)
+![Sending feedback from the Chrome DevTools.](docs/screenshot.png)
 
 ## Install
 
@@ -42,7 +42,7 @@ Install the Claude Code plugin
 
 ## Features
 
-- **Annotate elements** — Select an element with <kbd><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>C</kbd></kbd> and write your feedback
+- **Annotate elements** — Select an element and write your feedback
 - **Works anywhere** — Annotate any website from your Chrome DevTools, no project setup required
 - **Live agent collaboration** — Send feedback directly to your pi or Claude Code session via a webhook
 - **Copy as markdown** — Copy feedback or an element’s full context as markdown at any point
