@@ -24,8 +24,8 @@
     </p>
 
     <p>
-      I reach for it all the time to send detailed feedback to Claude Code. I
-      like that there's no setup, and it works on any site.
+      I reach for it all the time to send detailed feedback to Pi and Claude
+      Code. I like that there's no setup, and it works on any site.
     </p>
 
     <p>
