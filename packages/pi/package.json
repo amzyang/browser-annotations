@@ -1,6 +1,6 @@
 {
   "name": "@browser-annotations/pi",
-  "version": "1.6.4",
+  "version": "0.1.0",
   "description": "Select an element, add feedback, and send it to pi.",
   "keywords": [
     "annotations",
