@@ -36,14 +36,14 @@ Install the Claude Code plugin
 5. Hit <img src="docs/icon-send.svg" alt="Send" /> to send to your coding agent, or <img src="docs/icon-copy.svg" alt="Copy" /> to copy as markdown
 
 > [!TIP]
-> <kbd><kbd>⌘</kbd> <kbd>X</kbd></kbd> / <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd> copies your feedback to clipboard. Handy for quick sharing.
+> Copy an element's context or your feedback at any time with <kbd><kbd>⌘</kbd> <kbd>X</kbd></kbd> / <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd>. Handy for quick sharing.
 
 ## Features
 
 - **Annotate elements** — Select an element and write your feedback
 - **Works anywhere** — Annotate any website from your Chrome DevTools, no project setup required
 - **Live agent collaboration** — Send feedback directly to your Pi or Claude Code session via a webhook
-- **Copy as markdown** — Copy feedback or an element’s full context as markdown at any point
+- **Copy as markdown** — Copy an element's context or your feedback at any time
 - **Full context** — Includes an element's selector, position, size, viewport, and device info
 - **Attach screenshots** — Optionally include a screenshot of the selected element
 - **Source mapping** — Links elements to React and Svelte source code during development

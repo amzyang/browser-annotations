@@ -105,7 +105,7 @@
           class="webhook-blink bg-foreground/50 inline-flex size-2 rounded-full"
         ></span>
       </span>
-      and collaborate with your coding agent via the
+      to send the feedback to your coding agent session via the
       <a
         href="https://pi.dev/packages/@browser-annotations/pi"
         target="_blank"
