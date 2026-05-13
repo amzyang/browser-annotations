@@ -14,18 +14,17 @@
     <p>
       <span class="text-accent" aria-hidden="true">**</span><span
         class="text-foreground">Browser Annotations</span
-      ><span class="text-accent" aria-hidden="true">**</span> is a Chrome
-      DevTools extension that lets you annotate elements and grab their context
-      as
-      <a
-        class="text-foreground decoration-accent underline underline-offset-3"
-        href="/example">markdown</a
-      >.
+      ><span class="text-accent" aria-hidden="true">**</span> is a Chrome DevTools
+      extension to grab an element's context and write feedback for agents.
     </p>
 
     <p>
-      I reach for it all the time to send detailed feedback to Pi and Claude
-      Code. I like that there's no setup, and it works on any site.
+      I reach for it all the time, sending the feedback to my Pi session or
+      simply copying the
+      <a
+        class="text-foreground decoration-accent underline underline-offset-3"
+        href="/example">markdown</a
+      >. I like that there's no setup.
     </p>
 
     <p>
@@ -154,14 +153,16 @@
 
     <Signature class="text-foreground mt-8 w-20" aria-label="Wiebe" />
 
-    <p class="text-foreground/50 pt-4 text-xs">
+    <p
+      class="text-foreground/50 pt-4 text-xs md:max-w-[40ch] lg:max-w-[60ch] xl:max-w-none"
+    >
       Psst. It's all open source. Check out the
       <a
         class="text-foreground/70 decoration-accent underline underline-offset-3"
         href="https://github.com/wiebekaai/browser-annotations"
         target="_blank">repository</a
-      >.<br class="max-sm:hidden" />
-      And here's my statement on
+      >.<br class="sm:hidden lg:block" />
+      And here's my policy regarding
       <a
         class="text-foreground/70 decoration-accent underline underline-offset-3"
         href="/privacy">privacy</a
@@ -171,7 +172,7 @@
 </main>
 
 <section
-  class="relative hidden h-[24rem] border-y border-[#d0d0d0] bg-white text-[#202124] max-sm:mt-40 max-sm:block max-sm:h-auto max-sm:border-y-0 sm:block dark:border-[#56525e] dark:bg-[#26242c] dark:text-white"
+  class="relative hidden h-[24rem] border-y border-[#d0d0d0] bg-white text-[#202124] max-md:mt-40 max-md:block max-md:h-auto max-md:border-y-0 md:block dark:border-[#56525e] dark:bg-[#26242c] dark:text-white"
   aria-labelledby="devtools-demo-title"
 >
   <h2 id="devtools-demo-title" class="sr-only">
@@ -182,7 +183,7 @@
     sending them from the Feedback tab.
   </p>
   <TabAnnotation
-    class="text-foreground absolute -top-2 left-8 z-10 w-44 -translate-y-full sm:right-54 sm:left-auto"
+    class="text-foreground absolute -top-2 left-8 z-10 w-44 -translate-y-full md:right-54 md:left-auto"
     aria-hidden="true"
   />
   <DevToolsDemo />
