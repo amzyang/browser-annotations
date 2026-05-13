@@ -14,7 +14,8 @@
     "build": "vite build",
     "check": "pnpm run check:types",
     "check:types": "tsgo -b ./tsconfig.json",
-    "dev": "vite"
+    "dev": "vite",
+    "package": "vite build && cd dist && zip -r \"../browser-annotations-$npm_package_version.zip\" . -x '.vite/*'"
   },
   "dependencies": {
     "clsx": "^2.1.1",
