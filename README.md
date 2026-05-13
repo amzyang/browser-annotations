@@ -2,7 +2,7 @@
 
 [Browser Annotations](https://browser-annotations.dev/) is a Chrome DevTools extension to send feedback to your agent.
 
-Select an element, add feedback, and send it to your pi or Claude Code session.
+Select an element, add feedback, and send it to your Pi or Claude Code session.
 
 ![Sending feedback from the Chrome DevTools.](docs/screenshot.png)
 
@@ -14,7 +14,7 @@ Install the Chrome extension
 npx browser-annotations@latest
 ```
 
-Install the pi extension
+Install the Pi extension
 
 ```bash
 pi install npm:@browser-annotations/pi
@@ -30,7 +30,7 @@ Install the Claude Code plugin
 ## Usage
 
 1. _(Optional)_ Set up your agent to work on your feedback
-   - pi — `/browser-annotations`
+   - Pi — `/browser-annotations`
    - Claude Code — `claude --dangerously-load-development-channels plugin:claude@browser-annotations`
 2. Select an element in the Chrome DevTools
 3. Add your feedback in the Feedback tab (drag this tab to the left so it's easily accessible)
@@ -44,7 +44,7 @@ Install the Claude Code plugin
 
 - **Annotate elements** — Select an element and write your feedback
 - **Works anywhere** — Annotate any website from your Chrome DevTools, no project setup required
-- **Live agent collaboration** — Send feedback directly to your pi or Claude Code session via a webhook
+- **Live agent collaboration** — Send feedback directly to your Pi or Claude Code session via a webhook
 - **Copy as markdown** — Copy feedback or an element’s full context as markdown at any point
 - **Full context** — Includes an element's selector, position, size, viewport, device info, and a screenshot
 - **Source mapping** — Links elements to React and Svelte source code during development

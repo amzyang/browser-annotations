@@ -35,14 +35,14 @@ try {
   if (isUpdate) {
     console.log(` 1. Reload the extension in ${cyan("chrome://extensions")}`);
     console.log(" 2. Update your agent:");
-    console.log(`    - pi: ${cyan("pi update")}`);
+    console.log(`    - Pi: ${cyan("pi update")}`);
     console.log(`    - Claude Code: ${cyan("/plugin update claude@browser-annotations")}`);
   } else {
     console.log(` 1. Open ${cyan("chrome://extensions")}`);
     console.log(` 2. Enable "Developer mode" (top right)`);
     console.log(` 3. Click "Load unpacked" and select ${cyan(targetDir)}`);
     console.log(" 4. Set up your agent:");
-    console.log(`    - pi: ${cyan("pi install git:github.com/wiebekaai/browser-annotations")}`);
+    console.log(`    - Pi: ${cyan("pi install git:github.com/wiebekaai/browser-annotations")}`);
     console.log(
       `    - Claude Code: ${cyan("/plugin marketplace add wiebekaai/browser-annotations")} + ${cyan("/plugin install claude@browser-annotations")}`,
     );
