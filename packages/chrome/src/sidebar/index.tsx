@@ -2,6 +2,8 @@ import { For, Show, batch, createEffect, createSignal, on, onCleanup, onMount } 
 import { render } from "solid-js/web";
 import "~/styles.css";
 import {
+  CameraIcon,
+  CameraSlashIcon,
   CopyIcon,
   PlusIcon,
   PaperPlaneTiltIcon,
@@ -22,6 +24,7 @@ import { createAnnotation } from "~/sidebar/annotations";
 import type { Annotation as AnnotationType } from "~/sidebar/annotations";
 import { loadState, onStorageChange, saveState } from "~/sidebar/storage";
 import { toBatchMd, toMd } from "~/sidebar/output";
+import { writeAnnotationScreenshots } from "~/sidebar/screenshot-files";
 import { Annotation } from "~/sidebar/annotation";
 
 const Sidebar = () => {
@@ -37,6 +40,7 @@ const Sidebar = () => {
   const [webhookEnabled, setWebhookEnabled] = createSignal(false);
   const [isEditingWebhook, setIsEditingWebhook] = createSignal(false);
   const [webhookUrl, setWebhookUrl] = createSignal("");
+  const [attachScreenshot, setAttachScreenshot] = createSignal(false);
 
   const [annotations, setAnnotations] = createSignal<AnnotationType[]>([]);
 
@@ -82,12 +86,14 @@ const Sidebar = () => {
 
   const [formError, setFormError] = createSignal<string | null>(null);
   const [webhookError, setWebhookError] = createSignal<string | null>(null);
+  const [copyError, setCopyError] = createSignal<string | null>(null);
   const [webhookFailed, setWebhookFailed] = createSignal(false);
   createEffect(on(webhookUrl, () => setWebhookFailed(false), { defer: true }));
 
   const clearErrors = () => {
     setFormError(null);
     setWebhookError(null);
+    setCopyError(null);
   };
 
   const flashFormError = (message: string) => {
@@ -97,6 +103,21 @@ const Sidebar = () => {
   const flashWebhookError = (message: string) => {
     setWebhookError(message);
     setWebhookFailed(true);
+  };
+
+  const saveScreenshotsToDisk = async (
+    list: AnnotationType[],
+  ): Promise<AnnotationType[] | null> => {
+    try {
+      const paths = await writeAnnotationScreenshots(list);
+      return list.map((a) => {
+        const path = paths.get(a.id);
+        return path ? { ...a, screenshot: path } : a;
+      });
+    } catch {
+      setCopyError("Could not save screenshot");
+      return null;
+    }
   };
 
   const comment = () => refs.commentInput.value.trim() || undefined;
@@ -112,6 +133,7 @@ const Sidebar = () => {
       batch(() => {
         setWebhookEnabled(state.webhookEnabled);
         setWebhookUrl(state.webhookUrl);
+        setAttachScreenshot(false);
         setAnnotations(state.annotations);
       });
     }),
@@ -189,16 +211,27 @@ const Sidebar = () => {
     const required = await requireSelectionAndContext();
     if (!required) return;
 
-    const success = await copyToClipboard(
-      toMd(
-        createAnnotation({
-          comment: comment() || undefined,
-          selection: required.selection,
-          context: required.context,
-        }),
-        { includeScreenshot: false },
-      ),
-    );
+    const useScreenshot = attachScreenshot();
+    setAttachScreenshot(false);
+
+    const screenshot = useScreenshot
+      ? await captureCroppedScreenshot(
+          required.context.boundingBox,
+          required.context.page.devicePixelRatio,
+        )
+      : undefined;
+
+    const annotation = createAnnotation({
+      comment: comment() || undefined,
+      screenshot: screenshot || undefined,
+      selection: required.selection,
+      context: required.context,
+    });
+
+    const [rewritten] = (await saveScreenshotsToDisk([annotation])) ?? [];
+    if (!rewritten) return;
+
+    const success = await copyToClipboard(toMd(rewritten));
 
     clearTimeout(hasCopiedAllTimeout);
     setHasCopiedAll(success);
@@ -213,9 +246,12 @@ const Sidebar = () => {
       return handleCopy();
     }
 
-    const success = await copyToClipboard(
-      toBatchMd(annotations(), { comment: comment(), includeScreenshot: false }),
-    );
+    const rewritten = await saveScreenshotsToDisk(annotations());
+    if (!rewritten) return;
+
+    setAttachScreenshot(false);
+
+    const success = await copyToClipboard(toBatchMd(rewritten, { comment: comment() }));
 
     clearTimeout(hasCopiedAllTimeout);
     setHasCopiedAll(success);
@@ -258,10 +294,15 @@ const Sidebar = () => {
         const required = await requireSelectionAndContext();
         if (!required) return;
 
-        const sendScreenshot = await captureCroppedScreenshot(
-          required.context.boundingBox,
-          required.context.page.devicePixelRatio,
-        );
+        const useScreenshot = attachScreenshot();
+        setAttachScreenshot(false);
+
+        const sendScreenshot = useScreenshot
+          ? await captureCroppedScreenshot(
+              required.context.boundingBox,
+              required.context.page.devicePixelRatio,
+            )
+          : undefined;
 
         const sendBody = toMd(
           createAnnotation({
@@ -288,16 +329,27 @@ const Sidebar = () => {
         const required = await requireSelectionAndContext();
         if (!required) return;
 
-        await copyToClipboard(
-          toMd(
-            createAnnotation({
-              comment: currentComment,
-              selection: required.selection,
-              context: required.context,
-            }),
-            { includeScreenshot: false },
-          ),
-        );
+        const useScreenshot = attachScreenshot();
+        setAttachScreenshot(false);
+
+        const screenshot = useScreenshot
+          ? await captureCroppedScreenshot(
+              required.context.boundingBox,
+              required.context.page.devicePixelRatio,
+            )
+          : undefined;
+
+        const annotation = createAnnotation({
+          comment: currentComment,
+          screenshot: screenshot || undefined,
+          selection: required.selection,
+          context: required.context,
+        });
+
+        const [rewritten] = (await saveScreenshotsToDisk([annotation])) ?? [];
+        if (!rewritten) return;
+
+        await copyToClipboard(toMd(rewritten));
 
         setHasSubmitted(true);
         hasSubmittedTimeout = setTimeout(() => setHasSubmitted(false), 2000);
@@ -314,6 +366,7 @@ const Sidebar = () => {
 
         if (!(await sendToWebhook(sendBatchBody))) return;
 
+        setAttachScreenshot(false);
         flashSubmittedAndCleanBatch(annotationIds);
         break;
       }
@@ -321,13 +374,12 @@ const Sidebar = () => {
         const annotationIds = [...batchAnnotationIds()];
         if (!annotationIds.length) return;
 
-        await copyToClipboard(
-          toBatchMd(batchAnnotations(), {
-            comment: currentComment,
-            includeScreenshot: false,
-          }),
-        );
+        const rewritten = await saveScreenshotsToDisk(batchAnnotations());
+        if (!rewritten) return;
 
+        await copyToClipboard(toBatchMd(rewritten, { comment: currentComment }));
+
+        setAttachScreenshot(false);
         flashSubmittedAndCleanBatch(annotationIds);
         break;
       }
@@ -344,7 +396,7 @@ const Sidebar = () => {
 
         setAnnotations((v) => [...v, annotation]);
 
-        if (webhookEnabled()) {
+        if (attachScreenshot()) {
           captureCroppedScreenshot(
             required.context.boundingBox,
             required.context.page.devicePixelRatio,
@@ -357,6 +409,7 @@ const Sidebar = () => {
             );
           });
         }
+        setAttachScreenshot(false);
 
         refs.form.reset();
         refs.annotationList.scrollTo({
@@ -414,6 +467,12 @@ const Sidebar = () => {
     if (modifier && e.key === "k" && comment()) {
       e.preventDefault();
       refs.form.reset();
+      return;
+    }
+
+    if (modifier && e.code === "Period") {
+      e.preventDefault();
+      setAttachScreenshot((v) => !v);
     }
   };
 
@@ -436,6 +495,7 @@ const Sidebar = () => {
       batch(() => {
         setWebhookEnabled(state.webhookEnabled);
         setWebhookUrl(state.webhookUrl);
+        setAttachScreenshot(false);
         setAnnotations(state.annotations);
       });
     });
@@ -687,41 +747,63 @@ const Sidebar = () => {
                 </span>
               </Show>
               <Show when={!isBatching() && !hasSubmitted()}>
-                <Show
-                  when={selection()}
-                  fallback={
-                    <span class="block text-2xs text-foreground/80">{"Select an element"}</span>
-                  }
-                >
-                  {(selection) => (
-                    <div class="flex h-fit items-center gap-1">
-                      <span
-                        tabindex="0"
-                        class="peer flex cursor-default items-center gap-1 text-2xs text-foreground/80 select-none [anchor-name:--selector]"
-                        onMouseEnter={loadSelectionContext}
-                        onFocus={loadSelectionContext}
-                      >
-                        <CrosshairSimpleIcon class="size-3 shrink-0" />
-                        <span>{truncateSelector(selection().selector)}</span>
+                <div class="flex h-fit items-center gap-1">
+                  <div class="relative flex items-center [anchor-name:--screenshot-toggle]">
+                    <button
+                      type="button"
+                      aria-label="Attach screenshot"
+                      onClick={() => setAttachScreenshot((v) => !v)}
+                      class="peer flex size-4 items-center justify-center rounded-xs text-foreground/80 hover:text-foreground"
+                    >
+                      <Show when={attachScreenshot()} fallback={<CameraSlashIcon class="size-3" />}>
+                        <CameraIcon class="size-3" />
+                      </Show>
+                    </button>
+                    <Tooltip anchor="--screenshot-toggle" position="top-left">
+                      <span class="inline-flex items-center gap-1">
+                        Attach screenshot
+                        <Kbd aria-label="Command Period">
+                          <CommandIcon class="size-2.5" /> <span aria-hidden="true">.</span>
+                        </Kbd>
                       </span>
-                      <Tooltip
-                        class="hidden max-w-[min(24rem,calc(100vw-1rem))] whitespace-normal"
-                        anchor="--selector"
-                        position="bottom-left"
-                      >
-                        <Show when={!isLoadingSelectionContext() && selectionContext()}>
-                          {(context) => (
-                            <>
-                              {formatHref(context().page.href)} ({context().page.viewport.width}
-                              &times;
-                              {context().page.viewport.height})
-                            </>
-                          )}
-                        </Show>
-                      </Tooltip>
-                    </div>
-                  )}
-                </Show>
+                    </Tooltip>
+                  </div>
+                  <Show
+                    when={selection()}
+                    fallback={
+                      <span class="block text-2xs text-foreground/80">{"Select an element"}</span>
+                    }
+                  >
+                    {(selection) => (
+                      <>
+                        <span
+                          tabindex="0"
+                          class="peer flex cursor-default items-center gap-1 text-2xs text-foreground/80 select-none [anchor-name:--selector]"
+                          onMouseEnter={loadSelectionContext}
+                          onFocus={loadSelectionContext}
+                        >
+                          <CrosshairSimpleIcon class="size-3 shrink-0" />
+                          <span>{truncateSelector(selection().selector)}</span>
+                        </span>
+                        <Tooltip
+                          class="hidden max-w-[min(24rem,calc(100vw-1rem))] whitespace-normal"
+                          anchor="--selector"
+                          position="bottom-left"
+                        >
+                          <Show when={!isLoadingSelectionContext() && selectionContext()}>
+                            {(context) => (
+                              <>
+                                {formatHref(context().page.href)} ({context().page.viewport.width}
+                                &times;
+                                {context().page.viewport.height})
+                              </>
+                            )}
+                          </Show>
+                        </Tooltip>
+                      </>
+                    )}
+                  </Show>
+                </div>
               </Show>
             </div>
             <div
@@ -827,10 +909,10 @@ const Sidebar = () => {
               </div>
             </div>
           </div>
-          <Show when={webhookError() || formError()}>
+          <Show when={webhookError() || formError() || copyError()}>
             <div class="mt-2 ml-auto flex w-fit items-center gap-1 text-2xs text-foreground">
               <WarningCircleIcon class="size-3 shrink-0 text-danger" />
-              {webhookError() || formError()}
+              {webhookError() || formError() || copyError()}
             </div>
           </Show>
         </form>

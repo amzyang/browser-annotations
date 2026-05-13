@@ -2,7 +2,7 @@ import type { JSX, ParentComponent } from "solid-js";
 import { Show } from "solid-js";
 import { cn } from "~/sidebar/utils";
 import { truncateSelector } from "~/sidebar/utils";
-import { CrosshairSimpleIcon, MinusIcon, PlusIcon, XIcon } from "~/sidebar/icons";
+import { CameraIcon, CrosshairSimpleIcon, MinusIcon, PlusIcon, XIcon } from "~/sidebar/icons";
 import type { Annotation as AnnotationType } from "~/sidebar/annotations";
 
 const ActionButton: ParentComponent<JSX.ButtonHTMLAttributes<HTMLButtonElement>> = (props) => (
@@ -52,6 +52,9 @@ export const Annotation = (props: {
               <PlusIcon class="size-3" />
             </ActionButton>
           </Show>
+        </Show>
+        <Show when={props.annotation.screenshot}>
+          <CameraIcon class="size-3 shrink-0 text-foreground/80" />
         </Show>
         <span class="flex cursor-default items-center gap-1 text-2xs text-foreground/80">
           <CrosshairSimpleIcon class="size-3 shrink-0" />

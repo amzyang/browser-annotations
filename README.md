@@ -88,13 +88,14 @@ This should open the sidepanel with packages
 
 ## Keyboard shortcuts
 
-| Action          | Shortcut                                              |
-| --------------- | ----------------------------------------------------- |
-| Inspect element | <kbd><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>C</kbd></kbd>     |
-| Add             | <kbd><kbd>⌘</kbd> <kbd>Enter</kbd></kbd>              |
-| Submit          | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>Enter</kbd></kbd> |
-| Copy current    | <kbd><kbd>⌘</kbd> <kbd>X</kbd></kbd>                  |
-| Copy all        | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd>     |
-| Clear current   | <kbd><kbd>⌘</kbd> <kbd>K</kbd></kbd>                  |
-| Clear all       | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>K</kbd></kbd>     |
-| Cancel / Reset  | <kbd>Esc</kbd>                                        |
+| Action            | Shortcut                                              |
+| ----------------- | ----------------------------------------------------- |
+| Inspect element   | <kbd><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>C</kbd></kbd>     |
+| Add               | <kbd><kbd>⌘</kbd> <kbd>Enter</kbd></kbd>              |
+| Submit            | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>Enter</kbd></kbd> |
+| Attach screenshot | <kbd><kbd>⌘</kbd> <kbd>.</kbd></kbd>                  |
+| Copy current      | <kbd><kbd>⌘</kbd> <kbd>X</kbd></kbd>                  |
+| Copy all          | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd>     |
+| Clear current     | <kbd><kbd>⌘</kbd> <kbd>K</kbd></kbd>                  |
+| Clear all         | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>K</kbd></kbd>     |
+| Cancel / Reset    | <kbd>Esc</kbd>                                        |

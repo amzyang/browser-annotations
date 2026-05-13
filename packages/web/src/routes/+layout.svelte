@@ -44,12 +44,18 @@
   <link rel="canonical" href={canonicalUrl} />
 
   <meta property="og:url" content={canonicalUrl} />
-  <meta property="og:image" content="https://browser-annotations.dev/social-preview.png" />
+  <meta
+    property="og:image"
+    content="https://browser-annotations.dev/social-preview.png"
+  />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={socialTitle} />
   <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content="https://browser-annotations.dev/social-preview.png" />
+  <meta
+    name="twitter:image"
+    content="https://browser-annotations.dev/social-preview.png"
+  />
 </svelte:head>
 
 {@render children()}
