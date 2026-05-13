@@ -1,4 +1,5 @@
 dist/
+*.zip
 tsconfig.tsbuildinfo
 manifest.config.js
 manifest.config.d.ts

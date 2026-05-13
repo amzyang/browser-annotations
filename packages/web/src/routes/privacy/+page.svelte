@@ -100,7 +100,7 @@
 
     <p>
       The data goes only where you tell it to — your configured webhook (your
-      own pi or Claude Code session), or your clipboard. Nothing is sent to me
+      own Pi or Claude Code session), or your clipboard. Nothing is sent to me
       or to any third party.
     </p>
 

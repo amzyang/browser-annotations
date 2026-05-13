@@ -1,6 +1,6 @@
 {
   "name": "@browser-annotations/workspace",
-  "version": "1.6.4",
+  "version": "0.1.0",
   "private": true,
   "keywords": [
     "browser-annotations"
