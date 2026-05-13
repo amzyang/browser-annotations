@@ -44,7 +44,8 @@ Install the Claude Code plugin
 - **Works anywhere** — Annotate any website from your Chrome DevTools, no project setup required
 - **Live agent collaboration** — Send feedback directly to your Pi or Claude Code session via a webhook
 - **Copy as markdown** — Copy feedback or an element’s full context as markdown at any point
-- **Full context** — Includes an element's selector, position, size, viewport, device info, and a screenshot
+- **Full context** — Includes an element's selector, position, size, viewport, and device info
+- **Attach screenshots** — Optionally include a screenshot of the selected element
 - **Source mapping** — Links elements to React and Svelte source code during development
 - **Batch annotations** — Annotate elements across multiple pages and send them as one prompt
 
