@@ -7,9 +7,7 @@
   import Logo from "$lib/Logo.svelte";
 </script>
 
-<main
-  class="mx-auto flex grow flex-col items-center space-y-12 p-6 sm:py-20"
->
+<main class="mx-auto flex grow flex-col items-center space-y-12 p-6 sm:py-20">
   <section class="text-foreground/75 space-y-5 *:max-w-[70ch]">
     <h1 class="sr-only">Browser Annotations</h1>
 

@@ -41,7 +41,11 @@ export async function loadState(origin: string) {
 
 export async function saveState(
   origin: string,
-  state: { webhookEnabled: boolean; webhookUrl: string; annotations: Annotation[] },
+  state: {
+    webhookEnabled: boolean;
+    webhookUrl: string;
+    annotations: Annotation[];
+  },
 ) {
   try {
     await chrome.storage.local.set({

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
 
-  const lastUpdated = "2026-05-12";
+  const lastUpdated = "2026-05-13";
   const description =
     "Privacy policy for Browser Annotations, a Chrome DevTools extension that captures element context and annotations locally and sends them only to your configured destination.";
   const jsonLd = {
@@ -92,9 +92,16 @@
     </p>
 
     <p>
-      When you send or copy, the data goes only where you tell it to — your
-      configured webhook (your own pi or Claude Code session), or your
-      clipboard. Nothing is sent to me or to any third party.
+      Webhook sends embed the screenshot inline in the request body. Copies save
+      it to your Downloads folder under <code class="text-foreground"
+        >browser-annotations/</code
+      > so your agent can read it from disk. Delete the folder to remove saved screenshots.
+    </p>
+
+    <p>
+      The data goes only where you tell it to — your configured webhook (your
+      own pi or Claude Code session), or your clipboard. Nothing is sent to me
+      or to any third party.
     </p>
 
     <ul class="space-y-1">
@@ -116,13 +123,18 @@
       </li>
     </ul>
 
-    <p>Two permissions are requested, both for the core feature:</p>
+    <p>Three permissions are requested, all for the core feature:</p>
 
     <ul class="space-y-1">
       <li>
         <span class="text-accent" aria-hidden="true">-</span>&nbsp;<code
           class="text-foreground">storage</code
         > — to persist annotations between page loads
+      </li>
+      <li>
+        <span class="text-accent" aria-hidden="true">-</span>&nbsp;<code
+          class="text-foreground">downloads</code
+        > — to save screenshots to disk so your agent can read them
       </li>
       <li>
         <span class="text-accent" aria-hidden="true">-</span>&nbsp;<code

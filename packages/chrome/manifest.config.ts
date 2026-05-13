@@ -21,7 +21,7 @@ export default defineManifest({
   },
   homepage_url: "https://browser-annotations.dev/",
   icons: iconSet,
-  permissions: ["storage"],
+  permissions: ["storage", "downloads"],
   host_permissions: ["<all_urls>"],
   devtools_page: "src/devtools/index.html",
   background: {
