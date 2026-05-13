@@ -90,7 +90,6 @@ This should open the sidepanel with packages
 
 | Action            | Shortcut                                              |
 | ----------------- | ----------------------------------------------------- |
-| Inspect element   | <kbd><kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>C</kbd></kbd>     |
 | Add               | <kbd><kbd>⌘</kbd> <kbd>Enter</kbd></kbd>              |
 | Submit            | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>Enter</kbd></kbd> |
 | Attach screenshot | <kbd><kbd>⌘</kbd> <kbd>.</kbd></kbd>                  |
