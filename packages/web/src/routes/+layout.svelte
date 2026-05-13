@@ -6,9 +6,9 @@
   let { children } = $props();
 
   const siteTitle = "Browser Annotations";
-  const socialTitle = `${siteTitle} — Grab precise feedback for coding agents`;
+  const socialTitle = `${siteTitle} — The tab your DevTools is missing`;
   const description =
-    "A Chrome DevTools extension to grab precise feedback for coding agents.";
+    "A Chrome DevTools extension to send feedback to your coding agent. Select an element, add feedback, and send it to your Pi or Claude Code session, or simply copy the markdown.";
   const titlesByPath: Record<string, string> = {
     "/": siteTitle,
     "/example": "Example feedback",

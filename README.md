@@ -1,8 +1,8 @@
 # Browser Annotations
 
-Select an element, add feedback, and send it to your Pi or Claude Code session.
-
 [Browser Annotations](https://browser-annotations.dev/) is a Chrome DevTools extension to send feedback to your coding agent.
+
+Select an element, add feedback, and send it to your Pi or Claude Code session.
 
 ![Sending feedback from the Chrome DevTools.](docs/screenshot.png)
 
