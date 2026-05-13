@@ -19,11 +19,11 @@
 </script>
 
 <div
-  class="grid h-full grid-cols-[minmax(0,1fr)_26rem] max-sm:h-auto max-sm:grid-cols-1"
+  class="grid h-full grid-cols-[minmax(0,1fr)_26rem] max-md:h-auto max-md:grid-cols-1"
   aria-hidden="true"
 >
   <div
-    class="flex min-h-0 min-w-0 flex-col border-r border-[#d0d0d0] max-sm:hidden dark:border-[#56525e]"
+    class="flex min-h-0 min-w-0 flex-col border-r border-[#d0d0d0] max-md:hidden dark:border-[#56525e]"
   >
     <div
       class="relative flex h-[27px] shrink-0 items-stretch gap-0.5 border-b border-[#d0d0d0] bg-[#f3f3f3] pl-1 text-[12px] font-medium dark:border-[#56525e] dark:bg-[#26242c]"
@@ -270,10 +270,10 @@
   </div>
 
   <aside
-    class="flex min-h-0 min-w-0 flex-col bg-white font-mono text-[#202124] antialiased max-sm:h-[24rem] dark:bg-[#0e0e12] dark:text-white"
+    class="flex min-h-0 min-w-0 flex-col bg-white font-mono text-[#202124] antialiased max-md:h-[24rem] dark:bg-[#0e0e12] dark:text-white"
   >
     <div
-      class="relative flex h-[27px] shrink-0 items-stretch border-b border-[#d0d0d0] bg-[#f3f3f3] pl-1 text-[12px] font-medium max-sm:border-t dark:border-[#56525e] dark:bg-[#26242c]"
+      class="relative flex h-[27px] shrink-0 items-stretch border-b border-[#d0d0d0] bg-[#f3f3f3] pl-1 text-[12px] font-medium max-md:border-t dark:border-[#56525e] dark:bg-[#26242c]"
     >
       {#each ["Styles", "Feedback"] as tab}
         {#if tab === "Feedback"}
@@ -321,7 +321,7 @@
                 class="text-2xs flex items-center gap-1 text-black/60 dark:text-white/70"
               >
                 <Icon name="crosshair-simple" class="size-3 shrink-0" />
-                <span class="max-w-[28ch] min-w-0 truncate sm:max-w-none">
+                <span class="max-w-[28ch] min-w-0 truncate md:max-w-none">
                   {annotation.selector}
                 </span>
               </span>
