@@ -4,7 +4,7 @@
 
 <svg
   role="img"
-  aria-label="add the missing tab to your DevTools"
+  aria-label="the tab your devtools is missing"
   {...rest}
   class={["h-auto", className]}
   version="1.1"
@@ -36,7 +36,7 @@
       text-anchor="middle"
       style="white-space: pre;"
       direction="ltr"
-      dominant-baseline="alphabetic">add the missing tab</text
+      dominant-baseline="alphabetic">the tab your</text
     ><text
       x="96.4499282836914"
       y="42.62"
@@ -45,7 +45,7 @@
       text-anchor="middle"
       style="white-space: pre;"
       direction="ltr"
-      dominant-baseline="alphabetic">to your devtools</text
+      dominant-baseline="alphabetic">devtools is missing</text
     ></g
   ><g stroke-linecap="round"
     ><g
