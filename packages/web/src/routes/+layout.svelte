@@ -5,8 +5,8 @@
 
   let { children } = $props();
 
-  const siteTitle = "Browser Annotations";
-  const socialTitle = `${siteTitle} — The tab your DevTools is missing`;
+  const siteName = "Browser Annotations";
+  const siteTitle = `${siteName} — The Feedback tab for your DevTools`;
   const description =
     "A Chrome DevTools extension to send feedback to your coding agent. Select an element, add feedback, and send it to your Pi or Claude Code session, or simply copy the markdown.";
   const titlesByPath: Record<string, string> = {
@@ -14,7 +14,7 @@
     "/example": "Example feedback",
     "/privacy": "Privacy",
   };
-  const title = $derived(titlesByPath[page.url.pathname] ?? siteTitle);
+  const title = $derived(titlesByPath[page.url.pathname] ?? siteName);
   const canonicalUrl = $derived(
     `https://browser-annotations.dev${page.url.pathname}`,
   );
@@ -38,8 +38,8 @@
   />
 
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content={siteTitle} />
-  <meta property="og:title" content={socialTitle} />
+  <meta property="og:site_name" content={siteName} />
+  <meta property="og:title" content={siteTitle} />
   <meta property="og:description" content={description} />
   <link rel="canonical" href={canonicalUrl} />
 
@@ -50,7 +50,7 @@
   />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={socialTitle} />
+  <meta name="twitter:title" content={siteTitle} />
   <meta name="twitter:description" content={description} />
   <meta
     name="twitter:image"
