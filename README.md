@@ -33,7 +33,7 @@ Install the Claude Code plugin
 2. Select an element in the Chrome DevTools
 3. Add your feedback in the Feedback tab (drag this tab to the left so it's easily accessible)
 4. Use <img src="docs/icon-add.svg" alt="Add" /> to batch annotations. Annotations persist per website, so your feedback can span multiple pages
-5. Hit <img src="docs/icon-send.svg" alt="Send" /> to send to your agent, or <img src="docs/icon-copy.svg" alt="Copy" /> to copy as markdown
+5. Hit <img src="docs/icon-send.svg" alt="Send" /> to send to your coding agent, or <img src="docs/icon-copy.svg" alt="Copy" /> to copy as markdown
 
 > [!TIP]
 > <kbd><kbd>⌘</kbd> <kbd>X</kbd></kbd> / <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd> copies your feedback to clipboard. Handy for quick sharing.
