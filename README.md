@@ -10,9 +10,7 @@ Select an element, add feedback, and send it to your Pi or Claude Code session.
 
 Install the Chrome extension
 
-```bash
-npx browser-annotations@latest
-```
+_Coming soon to the Chrome Web Store._
 
 Install the Pi extension
 
