@@ -8,9 +8,7 @@ Select an element, add feedback, and send it to your Pi or Claude Code session.
 
 ## Install
 
-Install the Chrome extension
-
-_Coming soon to the Chrome Web Store._
+[Install the Chrome extension](https://chromewebstore.google.com/detail/lfkodgghploghefdcdeekohhjkofjckj)
 
 Install the Pi extension
 

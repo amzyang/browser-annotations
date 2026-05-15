@@ -31,7 +31,7 @@
       If you'd like to try it, you can install the
       <a
         class="text-foreground decoration-accent inline-flex -translate-y-[0.075em] items-center gap-1 align-middle underline underline-offset-3"
-        href="https://github.com/wiebekaai/browser-annotations#install"
+        href="https://chromewebstore.google.com/detail/lfkodgghploghefdcdeekohhjkofjckj"
         target="_blank"
       >
         <Logo name="chrome" class="size-4" />
