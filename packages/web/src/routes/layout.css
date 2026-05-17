@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: ExcalifontFull;
+  src: url("/fonts/Excalifont-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
 @theme {
   --font-mono: "Berkeley Mono", "SF Mono", "Menlo", monospace;
   --text-2xs: 0.625rem;
@@ -24,5 +30,5 @@
 }
 
 body {
-  @apply flex min-h-svh flex-col overflow-x-hidden overflow-y-scroll bg-panel font-mono text-sm text-foreground antialiased scheme-light-dark;
+  @apply flex min-h-svh flex-col overflow-x-hidden overflow-y-scroll bg-panel pt-8 font-mono text-sm text-foreground antialiased scheme-light-dark;
 }

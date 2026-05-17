@@ -4,9 +4,9 @@
 
 <svg
   role="img"
-  aria-label="click to see example output"
+  aria-label="click to see markdown output"
   {...rest}
-  class={["h-auto", className]}
+  class={["h-auto overflow-visible", className]}
   version="1.1"
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 395.8475112458932 128.0242032634411"
@@ -30,13 +30,13 @@
     ><text
       x="0"
       y="24.668"
-      font-family="Excalifont, Xiaolai, Segoe UI Emoji"
+      font-family="ExcalifontFull, Excalifont, Xiaolai, Segoe UI Emoji"
       font-size="28px"
       fill="currentColor"
       text-anchor="start"
       style="white-space: pre;"
       direction="ltr"
-      dominant-baseline="alphabetic">click to see example output</text
+      dominant-baseline="alphabetic">click to see markdown output</text
     ></g
   ><g stroke-linecap="round"
     ><g
