@@ -426,14 +426,9 @@ const Sidebar = () => {
 
     const modifier = e.metaKey || e.ctrlKey;
 
-    if (e.key === "Escape") {
-      if (isBatching()) {
-        e.preventDefault();
-        stopBatching();
-        return;
-      }
-
-      refs.form.reset();
+    if (e.key === "Escape" && isBatching()) {
+      e.preventDefault();
+      stopBatching();
       return;
     }
 
