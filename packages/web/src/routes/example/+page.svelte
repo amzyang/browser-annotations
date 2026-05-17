@@ -44,7 +44,7 @@ A bit more margin between paragraphs
 - **Source:** [\`src/routes/+page.svelte:24\`](src/routes/+page.svelte)`;
 </script>
 
-<main class="mx-auto flex w-full max-w-3xl grow flex-col gap-5 p-6 py-10">
+<main class="mx-auto flex w-full max-w-3xl grow flex-col gap-5 px-6 pt-4 pb-10">
   <a
     href={resolve("/")}
     aria-label="Back"

@@ -22,7 +22,7 @@
 </svelte:head>
 
 <main
-  class="mx-auto flex grow flex-col items-center space-y-12 p-6 py-20 max-sm:pt-10"
+  class="mx-auto flex grow flex-col items-center space-y-12 px-6 pt-4 pb-20"
 >
   <section class="text-foreground/75 space-y-5 *:max-w-[70ch]">
     <a
@@ -147,7 +147,7 @@
     <p>
       For questions or concerns, email me at <a
         class="text-foreground decoration-accent underline underline-offset-3"
-        href="mailto:hey@wiebe.dev">hey@wiebe.dev</a
+        href="mailto:wiebe@offday.studio">wiebe@offday.studio</a
       >.
     </p>
 

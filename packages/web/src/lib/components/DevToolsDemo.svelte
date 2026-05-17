@@ -154,8 +154,8 @@
           <span class="text-[#881280] dark:text-[#7cacf8]">&lt;main</span>
           <span class="text-[#994500] dark:text-[#a8c7fa]">class</span>=<span
             class="text-[#1a1aa6] dark:text-[#fe8d59]"
-            >"mx-auto flex grow flex-col items-center space-y-12 p-6 py-24
-            svelte-1uha8ag"</span
+            >"mx-auto flex grow flex-col items-center space-y-12 p-6 pt-12
+            sm:py-20 svelte-1uha8ag"</span
           ><span class="text-[#881280] dark:text-[#7cacf8]">&gt;</span></span
         >
         <span
@@ -165,18 +165,15 @@
         <span class="text-[#1a73e8] dark:text-[#5cd5fb]">== $0</span>
       </p>
       <p class="px-1 pl-16">
-        <span class="text-[#881280] dark:text-[#7cacf8]">&lt;img</span>
-        <span class="text-[#994500] dark:text-[#a8c7fa]">alt</span>=<span
-          class="text-[#1a1aa6] dark:text-[#fe8d59]"
-          >"Browser Annotations in Chrome DevTools…"</span
-        >
+        <span class="text-[#881280] dark:text-[#7cacf8]">&lt;section</span>
         <span class="text-[#994500] dark:text-[#a8c7fa]">class</span>=<span
           class="text-[#1a1aa6] dark:text-[#fe8d59]"
-          >"w-full max-w-180 rounded-sm object-cover svelte-1uha8ag"</span
+          >"relative mx-auto mt-36 hidden h-[24rem] w-[calc(100%-3rem)]
+          max-w-5xl rounded-sm border svelte-1uha8ag"</span
         >
-        <span class="text-[#994500] dark:text-[#a8c7fa]">src</span>=<span
-          class="text-[#1a1aa6] dark:text-[#fe8d59]"
-          >"/src/lib/assets/landing-screenshot.png"</span
+        <span class="text-[#994500] dark:text-[#a8c7fa]">aria-labelledby</span
+        >=<span class="text-[#1a1aa6] dark:text-[#fe8d59]"
+          >"devtools-demo-title"</span
         ><span class="text-[#881280] dark:text-[#7cacf8]">&gt;</span>
       </p>
       <p class="px-1 pl-16">
@@ -184,7 +181,7 @@
         <span class="text-[#881280] dark:text-[#7cacf8]">&lt;section</span>
         <span class="text-[#994500] dark:text-[#a8c7fa]">class</span>=<span
           class="text-[#1a1aa6] dark:text-[#fe8d59]"
-          >"text-foreground/70 space-y-4 *:max-w-[70ch] svelte-1uha8ag"</span
+          >"text-foreground/75 space-y-7 *:max-w-[70ch] svelte-1uha8ag"</span
         ><span class="text-[#881280] dark:text-[#7cacf8]">&gt;</span>
       </p>
       <p class="px-1 pl-20">
@@ -205,27 +202,8 @@
         ><span class="text-[#881280] dark:text-[#7cacf8]">&gt;</span>
       </p>
       <p class="px-1 pl-24">
-        <span class="text-[#881280] dark:text-[#7cacf8]">&lt;span</span>
-        <span class="text-[#994500] dark:text-[#a8c7fa]">class</span>=<span
-          class="text-[#1a1aa6] dark:text-[#fe8d59]"
-          >"text-accent svelte-1uha8ag"</span
-        ><span class="text-[#881280] dark:text-[#7cacf8]">&gt;</span>**<span
-          class="text-[#881280] dark:text-[#7cacf8]">&lt;/span&gt;</span
-        >
-      </p>
-      <p class="px-1 pl-24">
-        <span class="text-[#881280] dark:text-[#7cacf8]">&lt;span</span>
-        <span class="text-[#994500] dark:text-[#a8c7fa]">class</span>=<span
-          class="text-[#1a1aa6] dark:text-[#fe8d59]"
-          >"text-foreground svelte-1uha8ag"</span
-        ><span class="text-[#881280] dark:text-[#7cacf8]">&gt;</span>Browser
-        Annotations<span class="text-[#881280] dark:text-[#7cacf8]"
-          >&lt;/span&gt;</span
-        >
-      </p>
-      <p class="px-1 pl-24">
-        "is a Chrome DevTools extension for grabbing context and annotating
-        elements as markdown."
+        "Browser Annotations is a Chrome DevTools extension to grab an element's
+        context and write feedback for agents."
       </p>
       <p class="px-1 pl-20">
         <span class="text-[#881280] dark:text-[#7cacf8]">&lt;/p&gt;</span>
@@ -240,11 +218,8 @@
         ><span class="text-[#881280] dark:text-[#7cacf8]">&lt;/p&gt;</span>
       </p>
       <p class="px-1 pl-20">
-        <span class="text-[#881280] dark:text-[#7cacf8]">&lt;p</span>
-        <span class="text-[#994500] dark:text-[#a8c7fa]">class</span>=<span
-          class="text-[#1a1aa6] dark:text-[#fe8d59]">"svelte-1uha8ag"</span
-        ><span class="text-[#881280] dark:text-[#7cacf8]">&gt;</span>I'd love
-        for you to give it a try.<span
+        <span class="text-[#881280] dark:text-[#7cacf8]">&lt;p&gt;</span>If
+        you'd like to try it, you can install the Chrome extension.<span
           class="text-[#881280] dark:text-[#7cacf8]">&lt;/p&gt;</span
         >
       </p>
