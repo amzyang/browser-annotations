@@ -316,8 +316,10 @@ const Sidebar = () => {
         if (!(await sendToWebhook(sendBody))) return;
 
         setHasSubmitted(true);
-        hasSubmittedTimeout = setTimeout(() => setHasSubmitted(false), 2000);
-        refs.form.reset();
+        hasSubmittedTimeout = setTimeout(() => {
+          setHasSubmitted(false);
+          refs.form.reset();
+        }, 2000);
         break;
       }
       case "copy": {
@@ -352,8 +354,10 @@ const Sidebar = () => {
         await copyToClipboard(toMd(rewritten));
 
         setHasSubmitted(true);
-        hasSubmittedTimeout = setTimeout(() => setHasSubmitted(false), 2000);
-        refs.form.reset();
+        hasSubmittedTimeout = setTimeout(() => {
+          setHasSubmitted(false);
+          refs.form.reset();
+        }, 2000);
         break;
       }
       case "sendBatch": {
