@@ -104,4 +104,4 @@ A bit more margin between paragraphs
 | Copy all          | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd>     |
 | Clear current     | <kbd><kbd>⌘</kbd> <kbd>K</kbd></kbd>                  |
 | Clear all         | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>K</kbd></kbd>     |
-| Cancel / Reset    | <kbd>Esc</kbd>                                        |
+| Cancel            | <kbd>Esc</kbd>                                        |
