@@ -21,7 +21,8 @@ export const toJson = (
 
 const toAnnotationMd = (
   annotation: Annotation,
-  { includeScreenshot = true, index }: { includeScreenshot?: boolean; index: number },
+  index: number,
+  { includeScreenshot = true }: { includeScreenshot?: boolean } = {},
 ) => {
   const { comment, screenshot, target, page, boundingBox, source } = annotation;
   const lines: string[] = [];
@@ -62,10 +63,8 @@ const toAnnotationMd = (
   return lines.join("\n");
 };
 
-export const toMd = (
-  annotation: Annotation,
-  { includeScreenshot = true }: { includeScreenshot?: boolean } = {},
-) => toBatchMd([annotation], { includeScreenshot });
+export const toMd = (annotation: Annotation, options: { includeScreenshot?: boolean } = {}) =>
+  toBatchMd([annotation], options);
 
 export const toBatchMd = (
   annotations: Annotation[],
@@ -82,7 +81,7 @@ export const toBatchMd = (
   }
 
   for (const [i, annotation] of annotations.entries()) {
-    parts.push(toAnnotationMd(annotation, { includeScreenshot, index: i + 1 }));
+    parts.push(toAnnotationMd(annotation, i + 1, { includeScreenshot }));
     parts.push("");
   }
 
