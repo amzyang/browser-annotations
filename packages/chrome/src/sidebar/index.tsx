@@ -27,6 +27,8 @@ import { toBatchMd, toMd } from "~/sidebar/output";
 import { writeAnnotationScreenshots } from "~/sidebar/screenshot-files";
 import { Annotation } from "~/sidebar/annotation";
 
+const SUCCESS_FEEDBACK_MS = 1000;
+
 const Sidebar = () => {
   const refs = {
     webhookUrlInput: undefined as unknown as HTMLInputElement,
@@ -204,7 +206,7 @@ const Sidebar = () => {
         stopBatching();
       });
       refs.form.reset();
-    }, 2000);
+    }, SUCCESS_FEEDBACK_MS);
   };
 
   const handleCopy = async () => {
@@ -237,7 +239,7 @@ const Sidebar = () => {
     setHasCopiedAll(success);
 
     if (success) {
-      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), 2000);
+      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), SUCCESS_FEEDBACK_MS);
     }
   };
 
@@ -257,7 +259,7 @@ const Sidebar = () => {
     setHasCopiedAll(success);
 
     if (success) {
-      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), 2000);
+      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), SUCCESS_FEEDBACK_MS);
     }
   };
 
@@ -319,7 +321,7 @@ const Sidebar = () => {
         hasSubmittedTimeout = setTimeout(() => {
           setHasSubmitted(false);
           refs.form.reset();
-        }, 2000);
+        }, SUCCESS_FEEDBACK_MS);
         break;
       }
       case "copy": {
@@ -357,7 +359,7 @@ const Sidebar = () => {
         hasSubmittedTimeout = setTimeout(() => {
           setHasSubmitted(false);
           refs.form.reset();
-        }, 2000);
+        }, SUCCESS_FEEDBACK_MS);
         break;
       }
       case "sendBatch": {
