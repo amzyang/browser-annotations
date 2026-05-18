@@ -27,6 +27,8 @@ import { toBatchMd, toMd } from "~/sidebar/output";
 import { writeAnnotationScreenshots } from "~/sidebar/screenshot-files";
 import { Annotation } from "~/sidebar/annotation";
 
+const SUCCESS_FEEDBACK_MS = 1000;
+
 const Sidebar = () => {
   const refs = {
     webhookUrlInput: undefined as unknown as HTMLInputElement,
@@ -204,7 +206,7 @@ const Sidebar = () => {
         stopBatching();
       });
       refs.form.reset();
-    }, 2000);
+    }, SUCCESS_FEEDBACK_MS);
   };
 
   const handleCopy = async () => {
@@ -237,7 +239,7 @@ const Sidebar = () => {
     setHasCopiedAll(success);
 
     if (success) {
-      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), 2000);
+      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), SUCCESS_FEEDBACK_MS);
     }
   };
 
@@ -257,7 +259,7 @@ const Sidebar = () => {
     setHasCopiedAll(success);
 
     if (success) {
-      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), 2000);
+      hasCopiedAllTimeout = setTimeout(() => setHasCopiedAll(false), SUCCESS_FEEDBACK_MS);
     }
   };
 
@@ -316,8 +318,10 @@ const Sidebar = () => {
         if (!(await sendToWebhook(sendBody))) return;
 
         setHasSubmitted(true);
-        hasSubmittedTimeout = setTimeout(() => setHasSubmitted(false), 2000);
-        refs.form.reset();
+        hasSubmittedTimeout = setTimeout(() => {
+          setHasSubmitted(false);
+          refs.form.reset();
+        }, SUCCESS_FEEDBACK_MS);
         break;
       }
       case "copy": {
@@ -352,8 +356,10 @@ const Sidebar = () => {
         await copyToClipboard(toMd(rewritten));
 
         setHasSubmitted(true);
-        hasSubmittedTimeout = setTimeout(() => setHasSubmitted(false), 2000);
-        refs.form.reset();
+        hasSubmittedTimeout = setTimeout(() => {
+          setHasSubmitted(false);
+          refs.form.reset();
+        }, SUCCESS_FEEDBACK_MS);
         break;
       }
       case "sendBatch": {
@@ -426,14 +432,9 @@ const Sidebar = () => {
 
     const modifier = e.metaKey || e.ctrlKey;
 
-    if (e.key === "Escape") {
-      if (isBatching()) {
-        e.preventDefault();
-        stopBatching();
-        return;
-      }
-
-      refs.form.reset();
+    if (e.key === "Escape" && isBatching()) {
+      e.preventDefault();
+      stopBatching();
       return;
     }
 
@@ -619,50 +620,48 @@ const Sidebar = () => {
           </Show>
         </div>
         <div class="ml-auto flex">
-          <Show when={webhookEnabled()}>
-            <div class="h-8 [anchor-name:--toolbar-copy-button]">
-              <button
-                type="button"
-                aria-label="Copy annotations"
-                onClick={() => handleCopyAll()}
-                data-copied={hasCopiedAll() ? "" : undefined}
-                class="group peer flex size-8 items-center justify-center text-foreground/80 transition-[scale] duration-150 hover:text-foreground active:scale-[0.95]"
-              >
-                <CopyIcon
-                  class={cn(
-                    "size-3.25 transition-[opacity,blur] duration-100",
-                    "group-data-copied:scale-80 group-data-copied:opacity-0 group-data-copied:blur-[0.25px]",
-                    "not-group-data-copied:opacity-100 not-group-data-copied:blur-none",
-                  )}
-                />
-                <CheckIcon
-                  class={cn(
-                    "absolute size-3.25 transition-[opacity,blur] duration-100",
-                    "group-data-copied:opacity-100 group-data-copied:blur-none",
-                    "not-group-data-copied:scale-80 not-group-data-copied:opacity-0 not-group-data-copied:blur-[0.25px]",
-                  )}
-                />
-              </button>
-              <Tooltip anchor="--toolbar-copy-button" position="bottom" class="mr-1">
-                <div class="flex flex-col gap-0.5">
-                  <span class="inline-flex items-center gap-1">
-                    Copy all
-                    <Kbd aria-label="Command Shift X">
-                      <CommandIcon class="size-2.5" /> <ArrowFatUpIcon class="size-2.5" />
-                      <span aria-hidden="true">X</span>
-                    </Kbd>
-                  </span>
-                  <span class="inline-flex items-center gap-1 text-foreground/50">
-                    Or current
-                    <Kbd aria-label="Command X">
-                      <CommandIcon class="size-2.5" />
-                      <span aria-hidden="true">X</span>
-                    </Kbd>
-                  </span>
-                </div>
-              </Tooltip>
-            </div>
-          </Show>
+          <div class="h-8 [anchor-name:--toolbar-copy-button]">
+            <button
+              type="button"
+              aria-label="Copy annotations"
+              onClick={() => handleCopyAll()}
+              data-copied={hasCopiedAll() ? "" : undefined}
+              class="group peer flex size-8 items-center justify-center text-foreground/80 transition-[scale] duration-150 hover:text-foreground active:scale-[0.95]"
+            >
+              <CopyIcon
+                class={cn(
+                  "size-3.25 transition-[opacity,blur] duration-100",
+                  "group-data-copied:scale-80 group-data-copied:opacity-0 group-data-copied:blur-[0.25px]",
+                  "not-group-data-copied:opacity-100 not-group-data-copied:blur-none",
+                )}
+              />
+              <CheckIcon
+                class={cn(
+                  "absolute size-3.25 transition-[opacity,blur] duration-100",
+                  "group-data-copied:opacity-100 group-data-copied:blur-none",
+                  "not-group-data-copied:scale-80 not-group-data-copied:opacity-0 not-group-data-copied:blur-[0.25px]",
+                )}
+              />
+            </button>
+            <Tooltip anchor="--toolbar-copy-button" position="bottom" class="mr-1">
+              <div class="flex flex-col gap-0.5">
+                <span class="inline-flex items-center gap-1">
+                  Copy all
+                  <Kbd aria-label="Command Shift X">
+                    <CommandIcon class="size-2.5" /> <ArrowFatUpIcon class="size-2.5" />
+                    <span aria-hidden="true">X</span>
+                  </Kbd>
+                </span>
+                <span class="inline-flex items-center gap-1 text-foreground/50">
+                  Or current
+                  <Kbd aria-label="Command X">
+                    <CommandIcon class="size-2.5" />
+                    <span aria-hidden="true">X</span>
+                  </Kbd>
+                </span>
+              </div>
+            </Tooltip>
+          </div>
           <div class="h-8 [anchor-name:--toolbar-clear-button]">
             <button
               type="button"

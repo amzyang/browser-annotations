@@ -19,14 +19,15 @@ export const toJson = (
   };
 };
 
-export const toMd = (
+const toAnnotationMd = (
   annotation: Annotation,
+  index: number,
   { includeScreenshot = true }: { includeScreenshot?: boolean } = {},
 ) => {
   const { comment, screenshot, target, page, boundingBox, source } = annotation;
   const lines: string[] = [];
 
-  lines.push(`## \`${target.selector}\``);
+  lines.push(`## ${index}. \`${target.selector}\``);
   lines.push("");
 
   if (comment) {
@@ -62,6 +63,9 @@ export const toMd = (
   return lines.join("\n");
 };
 
+export const toMd = (annotation: Annotation, options: { includeScreenshot?: boolean } = {}) =>
+  toBatchMd([annotation], options);
+
 export const toBatchMd = (
   annotations: Annotation[],
   {
@@ -69,18 +73,15 @@ export const toBatchMd = (
     includeScreenshot = true,
   }: { comment?: string | null; includeScreenshot?: boolean } = {},
 ) => {
-  const parts: string[] = [];
+  const parts: string[] = ["# Feedback", ""];
 
   if (comment) {
-    parts.push("# Feedback");
-    parts.push("");
     parts.push(comment);
     parts.push("");
   }
 
   for (const [i, annotation] of annotations.entries()) {
-    const md = toMd(annotation, { includeScreenshot });
-    parts.push(md.replace(/^## /, `## ${i + 1}. `));
+    parts.push(toAnnotationMd(annotation, i + 1, { includeScreenshot }));
     parts.push("");
   }
 
