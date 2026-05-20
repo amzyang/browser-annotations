@@ -176,6 +176,14 @@ function getSelectionContextPayload() {
 
     type ReactFiber = {
       return: ReactFiber | null;
+      tag?: number;
+      type?: unknown;
+      _debugOwner?: ReactFiber | null;
+      _debugSource?: {
+        fileName?: unknown;
+        lineNumber?: unknown;
+        columnNumber?: unknown;
+      } | null;
       _debugStack?: Error;
     };
 
@@ -184,26 +192,65 @@ function getSelectionContextPayload() {
       return key ? ((el as unknown as Record<string, ReactFiber>)[key] ?? null) : null;
     };
 
-    const parseSourceLocation = (stack: string): SourceLocation | undefined => {
+    const REACT_SOURCE_FILE_REGEX = /\.(jsx|tsx|ts|js)$/;
+    const REACT_BUNDLED_FILE_PATTERNS = [
+      /(\.min|bundle|chunk|vendor|vendors|runtime|polyfill|polyfills)\.(js|mjs|cjs)$/i,
+      /(chunk|bundle|vendor|vendors|runtime|polyfill|polyfills|framework|app|main|index)[-_.][A-Za-z0-9_-]{4,}\.(js|mjs|cjs)$/i,
+      /[-_.][\da-f]{20,}\.(js|mjs|cjs)$/i,
+      /\/dist\/|\/build\/|\/\.next\/|\/node_modules\/|\.webpack\.|\.vite\.|\.turbopack\./i,
+    ];
+
+    const isReactSourceFile = (file: string) =>
+      REACT_SOURCE_FILE_REGEX.test(file) &&
+      !REACT_BUNDLED_FILE_PATTERNS.some((pattern) => pattern.test(file));
+
+    const toReactSourceFile = (url: string): string | undefined => {
+      const webpackPath = url.match(/webpack-internal:\/\/\/(?:\([^)]+\)\/)?\.\/(.+)$/)?.[1];
+      const file = (webpackPath ? `/${webpackPath}` : url.replace(/^https?:\/\/[^/]+/, "")).split(
+        "?",
+      )[0]!;
+
+      return isReactSourceFile(file) ? file : undefined;
+    };
+
+    const parseReactStackLocation = (stack: string): SourceLocation | undefined => {
       for (const line of stack.split("\n")) {
-        const match = line.match(/at .+? \(https?:\/\/[^/]+(\/[^?:]+?)(?:\?[^:]*)?:(\d+):(\d+)\)/);
+        const match = line.match(/at .+? \((.+):(\d+):(\d+)\)/);
 
         if (!match) {
           continue;
         }
 
-        const file = match[1]!;
-        const lineStr = match[2]!;
-        const columnStr = match[3]!;
+        const file = toReactSourceFile(match[1]!);
 
-        if (file.includes("/node_modules/")) {
+        if (!file) {
           continue;
         }
 
-        return { file, line: Number(lineStr), column: Number(columnStr) };
+        return { file, line: Number(match[2]!), column: Number(match[3]!) };
       }
 
       return undefined;
+    };
+
+    const getDebugSourceLocation = (fiber: ReactFiber): SourceLocation | undefined => {
+      const source = fiber._debugSource;
+
+      if (!source || typeof source.fileName !== "string" || typeof source.lineNumber !== "number") {
+        return undefined;
+      }
+
+      const file = toReactSourceFile(source.fileName);
+
+      if (!file) {
+        return undefined;
+      }
+
+      return {
+        file,
+        line: source.lineNumber,
+        column: typeof source.columnNumber === "number" ? source.columnNumber : 1,
+      };
     };
 
     const getReactSourceContext = (): SourceContext | undefined => {
@@ -216,13 +263,28 @@ function getSelectionContextPayload() {
       let current: ReactFiber | null = fiber;
 
       while (current) {
-        if (current._debugStack) {
-          const location = parseSourceLocation(current._debugStack.stack ?? "");
+        const debugSourceLocation = getDebugSourceLocation(current);
 
-          return {
-            framework: "react",
-            ...(location ? { location } : {}),
-          };
+        if (debugSourceLocation) {
+          return { framework: "react", location: debugSourceLocation };
+        }
+
+        if (current._debugStack) {
+          const stackLocation = parseReactStackLocation(current._debugStack.stack ?? "");
+
+          if (stackLocation) {
+            return { framework: "react", location: stackLocation };
+          }
+        }
+
+        if (current._debugOwner?._debugStack) {
+          const ownerLocation = parseReactStackLocation(
+            current._debugOwner._debugStack.stack ?? "",
+          );
+
+          if (ownerLocation) {
+            return { framework: "react", location: ownerLocation };
+          }
         }
 
         current = current.return;
