@@ -217,10 +217,13 @@ export function getSourceContext(element: Element): SourceContext | undefined {
 
       if (match) {
         const file = match[1]!.startsWith("/") ? match[1]! : `/${match[1]}`;
-        return {
-          framework: "solid",
-          location: { file, line: Number(match[2]!), column: Number(match[3]!) },
-        };
+
+        if (!file.includes("/node_modules/")) {
+          return {
+            framework: "solid",
+            location: { file, line: Number(match[2]!), column: Number(match[3]!) },
+          };
+        }
       }
 
       next = getParentElement(next);
