@@ -5,16 +5,18 @@ export type SourceLocation = {
 };
 
 export type SourceContext = {
-  framework: "svelte" | "react";
+  framework: "svelte" | "react" | "solid";
   location?: SourceLocation;
 };
 
 /**
  * Returns the first supported framework source context for an element.
- * Checks Svelte first, then React.
+ * Checks Svelte first, then React, then Solid.
  *
  * Svelte: reads `__svelte_meta` from the element or its ancestor chain (dev mode).
  * React: walks the Fiber chain looking for passive debug source data (dev mode).
+ * Solid: detects via `window.Solid$$` (dev mode) and reads `data-source-loc`
+ * attributes added by the `solid-devtools` locator.
  */
 export function getSourceContext(element: Element): SourceContext | undefined {
   const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -202,5 +204,30 @@ export function getSourceContext(element: Element): SourceContext | undefined {
     return { framework: "react" };
   };
 
-  return getSvelteSourceContext() ?? getReactSourceContext();
+  const getSolidSourceContext = (): SourceContext | undefined => {
+    if (!(globalThis as { Solid$$?: unknown }).Solid$$) {
+      return undefined;
+    }
+
+    let next: Element | null = element;
+
+    while (next) {
+      const value = next.getAttribute?.("data-source-loc");
+      const match = value?.match(/^(.+):(\d+):(\d+)$/);
+
+      if (match) {
+        const file = match[1]!.startsWith("/") ? match[1]! : `/${match[1]}`;
+        return {
+          framework: "solid",
+          location: { file, line: Number(match[2]!), column: Number(match[3]!) },
+        };
+      }
+
+      next = getParentElement(next);
+    }
+
+    return { framework: "solid" };
+  };
+
+  return getSvelteSourceContext() ?? getReactSourceContext() ?? getSolidSourceContext();
 }

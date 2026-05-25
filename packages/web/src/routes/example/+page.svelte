@@ -93,7 +93,7 @@ A bit more margin between paragraphs
       </li>
       <li>
         <span class="text-accent" aria-hidden="true">-</span>&nbsp;Source file,
-        when on a development server (React and Svelte)
+        when on a development server (React, Svelte, Solid)
       </li>
       <li>
         <span class="text-accent" aria-hidden="true">-</span>&nbsp;Screenshot
