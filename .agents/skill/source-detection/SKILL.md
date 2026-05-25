@@ -81,6 +81,20 @@ cd ba-svelte && pnpm install
 pnpm dev --host 127.0.0.1 --port 5180
 ```
 
+Solid (requires `solid-devtools` locator for source locations):
+
+```sh
+# Tested: Node 24.16.0, Vite 8.0.14, solid-js 1.9.13, solid-devtools 0.34.5
+cd /tmp
+pnpm create vite ba-solid --template solid-ts
+cd ba-solid && pnpm install && pnpm add -D solid-devtools
+# Then add solid-devtools to vite.config.ts and src/index.tsx:
+#   vite.config.ts: import devtools from "solid-devtools/vite";
+#     plugins: [devtools({ locator: { jsxLocation: true } }), solid()]
+#   src/index.tsx: import "solid-devtools";
+pnpm dev --host 127.0.0.1 --port 5182
+```
+
 SvelteKit:
 
 ```sh
@@ -141,4 +155,19 @@ agent-browser --session browser-annotations-source-detection --cdp 9223 eval '
 '
 ```
 
-Check that the result points at app source, not framework runtime or bundled files.
+Solid raw metadata:
+
+```sh
+agent-browser --session browser-annotations-source-detection --cdp 9223 eval '
+(() => {
+  const element = document.querySelector("#target");
+  return {
+    solidDev: !!globalThis.Solid$$,
+    locator: element.getAttribute("data-source-loc"),
+    parentLocator: element.parentElement?.getAttribute("data-source-loc"),
+  };
+})()
+'
+```
+
+Confirm the result points at app source, never framework runtime, bundled files, or anything under `/node_modules/`. Always test the node_modules case by wrapping the target in a library component (e.g. `@solidjs/router`'s `<A>`) and check that detection walks up to the call site.
