@@ -44,7 +44,7 @@ Install the Claude Code plugin
 - **Copy as markdown** — Copy an element's context or your feedback at any time
 - **Full context** — Includes an element's selector, position, size, viewport, and device info
 - **Attach screenshots** — Optionally include a screenshot of the selected element
-- **Source mapping** — Links elements to React and Svelte source code during development
+- **Source mapping** — Links elements to React, Svelte, and Solid source code during development
 - **Batch annotations** — Annotate elements across multiple pages and send them as one prompt
 
 ## Example output

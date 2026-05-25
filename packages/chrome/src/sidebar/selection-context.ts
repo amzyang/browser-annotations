@@ -293,7 +293,35 @@ function getSelectionContextPayload() {
       return { framework: "react" };
     };
 
-    return getSvelteSourceContext() ?? getReactSourceContext();
+    const getSolidSourceContext = (): SourceContext | undefined => {
+      if (!(globalThis as { Solid$$?: unknown }).Solid$$) {
+        return undefined;
+      }
+
+      let next: Element | null = element;
+
+      while (next) {
+        const value = next.getAttribute?.("data-source-loc");
+        const match = value?.match(/^(.+):(\d+):(\d+)$/);
+
+        if (match) {
+          const file = match[1]!.startsWith("/") ? match[1]! : `/${match[1]}`;
+
+          if (!file.includes("/node_modules/")) {
+            return {
+              framework: "solid",
+              location: { file, line: Number(match[2]!), column: Number(match[3]!) },
+            };
+          }
+        }
+
+        next = getParentElement(next);
+      }
+
+      return { framework: "solid" };
+    };
+
+    return getSvelteSourceContext() ?? getReactSourceContext() ?? getSolidSourceContext();
   };
 
   const scopeElement = getScopeElement(selected);
