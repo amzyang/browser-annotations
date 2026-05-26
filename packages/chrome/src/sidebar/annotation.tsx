@@ -32,7 +32,7 @@ export const Annotation = (props: {
         props.isInBatch ? "before:bg-accent" : "before:bg-foreground/20",
       )}
     >
-      <p class="pr-5 whitespace-pre-wrap">{props.annotation.comment}</p>
+      <p class="pr-5 wrap-anywhere whitespace-pre-wrap">{props.annotation.comment}</p>
       <div class="mt-2 flex h-fit items-center gap-1">
         <Show
           when={props.isBatching}
