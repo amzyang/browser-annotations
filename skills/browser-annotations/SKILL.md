@@ -1,23 +1,23 @@
 ---
 name: browser-annotations
-description: Work on feedback sent from the Browser Annotations Chrome extension. Use when the user wants to send feedback, questions, or requested UI/code changes from the browser to the agent.
+description: Work on feedback sent from the Browser Annotations Chrome extension. Use when the user wants to send feedback, questions, or changes from the browser to the agent.
 ---
 
 # Browser Annotations
 
-Receive Browser Annotations feedback and work through it live.
+Start the Browser Annotations server and work on incoming feedback. Respect any instructions given when invoking the skill.
 
-Respect any instructions given when invoking the skill.
-
-Start the bundled server from the repository root:
+The bundled server prints each annotation as markdown to `stdout` as it arrives:
 
 ```bash
 node skills/browser-annotations/server.js 3330
 ```
 
-Keep it running and ask the user to point the extension at `http://127.0.0.1:3330`. If the port is busy, use the next free port and share that URL.
+Ask the user to point the extension at `http://127.0.0.1:3330`. If the port is busy, use the next free port and share that URL.
 
-When annotation markdown arrives on `stdout`:
+Use a persistent watcher (in Claude Code, a `Monitor`) so each annotation reaches you the moment it arrives.
+
+When a new annotation appears on `stdout`:
 
 1. Read the full feedback.
 2. Inspect linked element images when useful.
