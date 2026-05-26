@@ -1,33 +1,20 @@
 # Browser Annotations
 
-[Browser Annotations](https://browser-annotations.dev/) is a Chrome DevTools extension to send feedback to your coding agent.
+<img src="docs/icon-browser-annotations.svg" alt="" width="18" height="18" align="absmiddle" /> [Browser Annotations](https://browser-annotations.dev/) is a Chrome DevTools extension to send feedback to your coding agent.
 
-Select an element, add feedback, and send it to your Pi or Claude Code session.
-
-![Sending feedback from the Chrome DevTools.](docs/screenshot.png)
+Select an element, add feedback, and use the skill to have your agent work on it live.
 
 ## Install
 
-[Install the Chrome extension](https://chromewebstore.google.com/detail/lfkodgghploghefdcdeekohhjkofjckj)
-
-Install the Pi extension
+<img src="docs/icon-chrome.svg" alt="" width="16" height="16" align="absmiddle" /> [Add to Chrome](https://chromewebstore.google.com/detail/lfkodgghploghefdcdeekohhjkofjckj)
 
 ```bash
-pi install npm:@browser-annotations/pi
-```
-
-Install the Claude Code plugin
-
-```bash
-/plugin marketplace add wiebekaai/browser-annotations
-/plugin install claude@browser-annotations
+npx skills add wiebekaai/browser-annotations
 ```
 
 ## Usage
 
-1. _(Optional)_ Set up your agent to work on your feedback
-   - Pi — `/browser-annotations`
-   - Claude Code — `claude --dangerously-load-development-channels plugin:claude@browser-annotations`
+1. Start the `/browser-annotations` skill
 2. Select an element in the Chrome DevTools
 3. Add your feedback in the Feedback tab (drag this tab to the left so it's easily accessible)
 4. Use <img src="docs/icon-add.svg" alt="Add" /> to batch annotations. Annotations persist per website, so your feedback can span multiple pages
@@ -40,12 +27,25 @@ Install the Claude Code plugin
 
 - **Annotate elements** — Select an element and write your feedback
 - **Works anywhere** — Annotate any website from your Chrome DevTools, no project setup required
-- **Live agent collaboration** — Send feedback directly to your Pi or Claude Code session via a webhook
+- **Live agent collaboration** — Send feedback directly to your coding agent
 - **Copy as markdown** — Copy an element's context or your feedback at any time
 - **Full context** — Includes an element's selector, position, size, viewport, and device info
 - **Attach screenshots** — Optionally include a screenshot of the selected element
-- **Source mapping** — Links elements to React, Svelte, and Solid source code during development
+- **Source detection** — Links elements to React, Svelte, and Solid source code for faster, more accurate edits
 - **Batch annotations** — Annotate elements across multiple pages and send them as one prompt
+
+## Keyboard shortcuts
+
+| Action            | Shortcut                                              |
+| ----------------- | ----------------------------------------------------- |
+| Add               | <kbd><kbd>⌘</kbd> <kbd>Enter</kbd></kbd>              |
+| Submit            | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>Enter</kbd></kbd> |
+| Attach screenshot | <kbd><kbd>⌘</kbd> <kbd>.</kbd></kbd>                  |
+| Copy current      | <kbd><kbd>⌘</kbd> <kbd>X</kbd></kbd>                  |
+| Copy all          | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd>     |
+| Clear current     | <kbd><kbd>⌘</kbd> <kbd>K</kbd></kbd>                  |
+| Clear all         | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>K</kbd></kbd>     |
+| Cancel            | <kbd>Esc</kbd>                                        |
 
 ## Example output
 
@@ -92,16 +92,3 @@ A bit more margin between paragraphs
 - **Size:** 672×232
 - **Source:** [`src/routes/+page.svelte:24`](src/routes/+page.svelte)
 ```
-
-## Keyboard shortcuts
-
-| Action            | Shortcut                                              |
-| ----------------- | ----------------------------------------------------- |
-| Add               | <kbd><kbd>⌘</kbd> <kbd>Enter</kbd></kbd>              |
-| Submit            | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>Enter</kbd></kbd> |
-| Attach screenshot | <kbd><kbd>⌘</kbd> <kbd>.</kbd></kbd>                  |
-| Copy current      | <kbd><kbd>⌘</kbd> <kbd>X</kbd></kbd>                  |
-| Copy all          | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>X</kbd></kbd>     |
-| Clear current     | <kbd><kbd>⌘</kbd> <kbd>K</kbd></kbd>                  |
-| Clear all         | <kbd><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>K</kbd></kbd>     |
-| Cancel            | <kbd>Esc</kbd>                                        |
