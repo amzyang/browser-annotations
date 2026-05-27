@@ -1,4 +1,14 @@
-import { For, Show, batch, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
+import {
+  For,
+  Show,
+  batch,
+  createEffect,
+  createResource,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import { render } from "solid-js/web";
 import "~/styles.css";
 import {
@@ -22,7 +32,17 @@ import { createSelection } from "~/sidebar/selection";
 import { formatHref, truncateSelector } from "~/sidebar/utils";
 import { createAnnotation } from "~/sidebar/annotations";
 import type { Annotation as AnnotationType } from "~/sidebar/annotations";
-import { loadState, onStorageChange, saveState } from "~/sidebar/storage";
+import {
+  addStoredAnnotation,
+  clearStoredAnnotations,
+  loadState,
+  onStorageChange,
+  removeStoredAnnotations,
+  setStoredAnnotationScreenshot,
+  setStoredWebhookEnabled,
+  setStoredWebhookUrl,
+} from "~/sidebar/storage";
+import type { SidebarState } from "~/sidebar/storage";
 import { toBatchMd, toMd } from "~/sidebar/output";
 import { writeAnnotationScreenshots } from "~/sidebar/screenshot-files";
 import { Annotation } from "~/sidebar/annotation";
@@ -45,25 +65,6 @@ const Sidebar = () => {
   const [attachScreenshot, setAttachScreenshot] = createSignal(false);
 
   const [annotations, setAnnotations] = createSignal<AnnotationType[]>([]);
-
-  // Auto-persist when storable state changes
-  createEffect(
-    on(
-      () => [webhookEnabled(), webhookUrl(), annotations()] as const,
-      async ([webhookEnabled, webhookUrl, annotations]) => {
-        const currentOrigin = origin();
-        if (!currentOrigin) return;
-        isPersisting = true;
-        await saveState(currentOrigin, {
-          webhookEnabled,
-          webhookUrl,
-          annotations,
-        });
-        isPersisting = false;
-      },
-      { defer: true },
-    ),
-  );
 
   const [batchedAnnotationIds, setBatchedAnnotationIds] = createSignal<string[] | null>(null);
   const isBatching = () => batchedAnnotationIds() !== null;
@@ -127,19 +128,20 @@ const Sidebar = () => {
   const { selection, origin } = createSelection();
   createEffect(on(selection, clearErrors, { defer: true }));
 
-  // Load persisted state whenever the origin changes.
-  createEffect(
-    on(origin, async (origin) => {
-      if (!origin) return;
-      const state = await loadState(origin);
-      batch(() => {
-        setWebhookEnabled(state.webhookEnabled);
-        setWebhookUrl(state.webhookUrl);
-        setAttachScreenshot(false);
-        setAnnotations(state.annotations);
-      });
-    }),
-  );
+  const applyStoredState = (state: SidebarState) => {
+    batch(() => {
+      setWebhookEnabled(state.webhookEnabled);
+      setWebhookUrl(state.webhookUrl);
+      setAttachScreenshot(false);
+      setAnnotations(state.annotations);
+    });
+  };
+
+  const [storedState] = createResource(origin, loadState);
+  createEffect(() => {
+    const state = storedState();
+    if (state) applyStoredState(state);
+  });
   const {
     selectionContext,
     isLoading: isLoadingSelectionContext,
@@ -147,8 +149,9 @@ const Sidebar = () => {
   } = createSelectionContext();
 
   const handleClearAll = () => {
-    setAnnotations([]);
+    const currentOrigin = origin();
     stopBatching();
+    if (currentOrigin) void clearStoredAnnotations(currentOrigin);
   };
 
   const requireSelectionAndContext = async () => {
@@ -197,14 +200,12 @@ const Sidebar = () => {
     clearTimeout(hasSubmittedTimeout);
     setHasSubmitted(true);
     hasSubmittedTimeout = setTimeout(() => {
+      const currentOrigin = origin();
       batch(() => {
         setHasSubmitted(false);
-        setAnnotations((annotations) => {
-          const ids = new Set(annotationIds);
-          return annotations.filter(({ id }) => !ids.has(id));
-        });
         stopBatching();
       });
+      if (currentOrigin) void removeStoredAnnotations(currentOrigin, annotationIds);
       refs.form.reset();
     }, SUCCESS_FEEDBACK_MS);
   };
@@ -393,6 +394,7 @@ const Sidebar = () => {
       default: {
         const required = await requireSelectionAndContext();
         if (!required) return;
+        const annotationOrigin = required.context.page.origin;
 
         const annotation = createAnnotation({
           comment: currentComment,
@@ -400,28 +402,21 @@ const Sidebar = () => {
           context: required.context,
         });
 
-        setAnnotations((v) => [...v, annotation]);
+        const savedAnnotation = addStoredAnnotation(annotationOrigin, annotation);
 
         if (attachScreenshot()) {
           captureCroppedScreenshot(
             required.context.boundingBox,
             required.context.page.devicePixelRatio,
-          ).then((screenshot) => {
+          ).then(async (screenshot) => {
             if (!screenshot) return;
-            setAnnotations((v) =>
-              v.some(({ id }) => id === annotation.id)
-                ? v.map((a) => (a.id === annotation.id ? { ...a, screenshot } : a))
-                : v,
-            );
+            await savedAnnotation;
+            void setStoredAnnotationScreenshot(annotationOrigin, annotation, screenshot);
           });
         }
         setAttachScreenshot(false);
 
         refs.form.reset();
-        refs.annotationList.scrollTo({
-          behavior: "smooth",
-          top: refs.annotationList.scrollHeight,
-        });
         break;
       }
     }
@@ -478,27 +473,18 @@ const Sidebar = () => {
   };
 
   let isDisposed = false;
-  let isPersisting = false;
   let removeStorageListener = () => {};
 
   onMount(() => {
     window.addEventListener("keydown", handleKeydown);
 
-    // Sync state written by OTHER DevTools panels on the same origin.
-    // The createEffect above handles writes from THIS panel; this listener
-    // catches writes from any other tab/window sharing the same storage key.
-    // Guarded by isPersisting to avoid reacting to our own writes.
+    // Storage changes are a shared-state projection, not write triggers.
     removeStorageListener = onStorageChange(origin, (state) => {
-      if (isDisposed || isPersisting) {
+      if (isDisposed) {
         return;
       }
 
-      batch(() => {
-        setWebhookEnabled(state.webhookEnabled);
-        setWebhookUrl(state.webhookUrl);
-        setAttachScreenshot(false);
-        setAnnotations(state.annotations);
-      });
+      applyStoredState(state);
     });
   });
 
@@ -531,9 +517,11 @@ const Sidebar = () => {
               aria-label="Toggle webhook"
               type="button"
               onClick={() => {
+                const next = !webhookEnabled();
+                const currentOrigin = origin();
                 setWebhookFailed(false);
                 setIsEditingWebhook(false);
-                setWebhookEnabled((v) => !v);
+                if (currentOrigin) void setStoredWebhookEnabled(currentOrigin, next);
               }}
             >
               <span
@@ -584,8 +572,10 @@ const Sidebar = () => {
                 class="flex items-center gap-1.5 pl-1"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  setWebhookUrl(refs.webhookUrlInput.value);
+                  const next = refs.webhookUrlInput.value;
+                  const currentOrigin = origin();
                   setIsEditingWebhook(false);
+                  if (currentOrigin) void setStoredWebhookUrl(currentOrigin, next);
                 }}
                 // Close when focus leaves the form, but not when moving between form elements (e.g. tabbing to submit)
                 onFocusOut={(e) => {
@@ -706,7 +696,10 @@ const Sidebar = () => {
                   annotation={annotation}
                   isBatching={isBatching()}
                   isInBatch={isBatching() && batchAnnotationIds().includes(annotation.id)}
-                  onRemove={() => setAnnotations((a) => a.filter(({ id }) => id !== annotation.id))}
+                  onRemove={() => {
+                    const currentOrigin = origin();
+                    if (currentOrigin) void removeStoredAnnotations(currentOrigin, [annotation.id]);
+                  }}
                   onExclude={() =>
                     setBatchedAnnotationIds((a) => a && a.filter((id) => id !== annotation.id))
                   }

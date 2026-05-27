@@ -1,85 +1,151 @@
 import type { Annotation } from "~/sidebar/annotations";
 import { isValidAnnotation } from "~/sidebar/annotations";
 
-type PersistedState = {
-  origin: string;
+type Settings = {
   webhookEnabled: boolean;
   webhookUrl: string;
+};
+
+export type SidebarState = Settings & {
   annotations: Annotation[];
 };
 
-const storageKey = (origin: string) => `feedback:${origin}`;
+const settingsKey = (origin: string) => `feedback:${origin}:settings`;
+const annotationPrefix = (origin: string) => `feedback:${origin}:annotation:`;
+const annotationKey = (origin: string, annotationId: string) =>
+  `${annotationPrefix(origin)}${annotationId}`;
 
-const DEFAULT_WEBHOOK_URL = "http://127.0.0.1:3330/";
+const DEFAULT_SETTINGS: Settings = {
+  webhookEnabled: true,
+  webhookUrl: "http://127.0.0.1:3330/",
+};
 
-export async function loadState(origin: string) {
-  const key = storageKey(origin);
-  const result = await chrome.storage.local.get([key]);
-  const raw = result[key] as PersistedState | undefined;
-
+const getSettings = (value: unknown): Settings => {
   if (
-    !raw ||
-    typeof raw.origin !== "string" ||
-    raw.origin !== origin ||
-    typeof raw.webhookEnabled !== "boolean" ||
-    typeof raw.webhookUrl !== "string"
+    !value ||
+    typeof value !== "object" ||
+    typeof (value as Settings).webhookEnabled !== "boolean" ||
+    typeof (value as Settings).webhookUrl !== "string"
   ) {
-    if (raw) await chrome.storage.local.remove(key);
-    return {
-      webhookEnabled: true,
-      webhookUrl: DEFAULT_WEBHOOK_URL,
-      annotations: [] as Annotation[],
-    };
+    return DEFAULT_SETTINGS;
   }
 
-  return {
-    webhookEnabled: raw.webhookEnabled,
-    webhookUrl: raw.webhookUrl,
-    annotations: Array.isArray(raw.annotations) ? raw.annotations.filter(isValidAnnotation) : [],
-  };
+  return value as Settings;
+};
+
+const loadSettings = async (origin: string) => {
+  const result = await chrome.storage.local.get([settingsKey(origin)]);
+  return getSettings(result[settingsKey(origin)]);
+};
+
+const loadAnnotations = async (origin: string) => {
+  const prefix = annotationPrefix(origin);
+  const result = await chrome.storage.local.get(null);
+
+  return Object.entries(result)
+    .flatMap(([key, value]) => (key.startsWith(prefix) && isValidAnnotation(value) ? [value] : []))
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+};
+
+export async function loadState(origin: string): Promise<SidebarState> {
+  const [settings, annotations] = await Promise.all([
+    loadSettings(origin),
+    loadAnnotations(origin),
+  ]);
+
+  return { ...settings, annotations };
 }
 
-export async function saveState(
-  origin: string,
-  state: {
-    webhookEnabled: boolean;
-    webhookUrl: string;
-    annotations: Annotation[];
-  },
-) {
+export const setStoredWebhookEnabled = async (origin: string, webhookEnabled: boolean) => {
   try {
+    const settings = await loadSettings(origin);
     await chrome.storage.local.set({
-      [storageKey(origin)]: {
-        origin,
-        ...state,
-      } satisfies PersistedState,
+      [settingsKey(origin)]: { ...settings, webhookEnabled },
     });
   } catch (error) {
-    console.error("Failed to save sidebar state", error);
+    console.error("Failed to save webhook setting", error);
   }
-}
+};
+
+export const setStoredWebhookUrl = async (origin: string, webhookUrl: string) => {
+  try {
+    const settings = await loadSettings(origin);
+    await chrome.storage.local.set({
+      [settingsKey(origin)]: { ...settings, webhookUrl },
+    });
+  } catch (error) {
+    console.error("Failed to save webhook URL", error);
+  }
+};
+
+export const addStoredAnnotation = async (origin: string, annotation: Annotation) => {
+  try {
+    await chrome.storage.local.set({
+      [annotationKey(origin, annotation.id)]: annotation,
+    });
+  } catch (error) {
+    console.error("Failed to save annotation", error);
+  }
+};
+
+export const setStoredAnnotationScreenshot = async (
+  origin: string,
+  annotation: Annotation,
+  screenshot: string,
+) => {
+  try {
+    const key = annotationKey(origin, annotation.id);
+    const result = await chrome.storage.local.get([key]);
+    const storedAnnotation = isValidAnnotation(result[key]) ? result[key] : annotation;
+
+    await chrome.storage.local.set({
+      [key]: { ...storedAnnotation, screenshot },
+    });
+  } catch (error) {
+    console.error("Failed to save annotation screenshot", error);
+  }
+};
+
+export const removeStoredAnnotations = async (origin: string, annotationIds: string[]) =>
+  chrome.storage.local
+    .remove(annotationIds.map((id) => annotationKey(origin, id)))
+    .catch((error) => console.error("Failed to remove annotations", error));
+
+export const clearStoredAnnotations = async (origin: string) => {
+  try {
+    const prefix = annotationPrefix(origin);
+    const result = await chrome.storage.local.get(null);
+
+    await chrome.storage.local.remove(Object.keys(result).filter((key) => key.startsWith(prefix)));
+  } catch (error) {
+    console.error("Failed to clear annotations", error);
+  }
+};
 
 export function onStorageChange(
   getOrigin: () => string | null,
-  apply: (state: {
-    webhookEnabled: boolean;
-    webhookUrl: string;
-    annotations: Annotation[];
-  }) => void,
+  apply: (state: SidebarState) => void,
 ) {
-  const listener = (changes: { [key: string]: chrome.storage.StorageChange }, area: string) => {
+  const listener = async (
+    changes: { [key: string]: chrome.storage.StorageChange },
+    area: string,
+  ) => {
     const origin = getOrigin();
     if (area !== "local" || !origin) return;
 
-    const raw = changes[storageKey(origin)]?.newValue as PersistedState | undefined;
-    if (!raw || typeof raw.webhookEnabled !== "boolean" || typeof raw.webhookUrl !== "string")
+    const keys = Object.keys(changes);
+    if (
+      !keys.some((key) => key === settingsKey(origin) || key.startsWith(annotationPrefix(origin)))
+    )
       return;
 
-    apply({
-      webhookEnabled: raw.webhookEnabled,
-      webhookUrl: raw.webhookUrl,
-      annotations: Array.isArray(raw.annotations) ? raw.annotations.filter(isValidAnnotation) : [],
-    });
+    try {
+      const state = await loadState(origin);
+      if (getOrigin() !== origin) return;
+      apply(state);
+    } catch (error) {
+      console.error("Failed to load sidebar state", error);
+    }
   };
 
   chrome.storage.onChanged.addListener(listener);
