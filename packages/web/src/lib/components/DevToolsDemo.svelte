@@ -290,7 +290,9 @@
           <article
             class="relative w-full bg-black/[0.03] p-2 pl-3 before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-[var(--color-accent)] before:content-[''] dark:bg-white/2"
           >
-            <p class="text-xs whitespace-pre-wrap">{annotation.comment}</p>
+            <p class="text-xs wrap-anywhere whitespace-pre-wrap">
+              {annotation.comment}
+            </p>
             <div class="mt-2 flex items-center gap-1">
               <span
                 class="text-2xs flex items-center gap-1 text-black/60 dark:text-white/70"
