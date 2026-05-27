@@ -56,7 +56,7 @@ export async function loadState(origin: string): Promise<SidebarState> {
   return { ...settings, annotations };
 }
 
-export const setStoredWebhookEnabled = async (origin: string, webhookEnabled: boolean) => {
+export const setWebhookEnabled = async (origin: string, webhookEnabled: boolean) => {
   try {
     const settings = await loadSettings(origin);
     await chrome.storage.local.set({
@@ -67,7 +67,7 @@ export const setStoredWebhookEnabled = async (origin: string, webhookEnabled: bo
   }
 };
 
-export const setStoredWebhookUrl = async (origin: string, webhookUrl: string) => {
+export const setWebhookUrl = async (origin: string, webhookUrl: string) => {
   try {
     const settings = await loadSettings(origin);
     await chrome.storage.local.set({
@@ -78,7 +78,7 @@ export const setStoredWebhookUrl = async (origin: string, webhookUrl: string) =>
   }
 };
 
-export const addStoredAnnotation = async (origin: string, annotation: Annotation) => {
+export const addAnnotation = async (origin: string, annotation: Annotation) => {
   try {
     await chrome.storage.local.set({
       [annotationKey(origin, annotation.id)]: annotation,
@@ -88,7 +88,7 @@ export const addStoredAnnotation = async (origin: string, annotation: Annotation
   }
 };
 
-export const setStoredAnnotationScreenshot = async (
+export const setAnnotationScreenshot = async (
   origin: string,
   annotation: Annotation,
   screenshot: string,
@@ -106,12 +106,12 @@ export const setStoredAnnotationScreenshot = async (
   }
 };
 
-export const removeStoredAnnotations = async (origin: string, annotationIds: string[]) =>
+export const removeAnnotations = async (origin: string, annotationIds: string[]) =>
   chrome.storage.local
     .remove(annotationIds.map((id) => annotationKey(origin, id)))
     .catch((error) => console.error("Failed to remove annotations", error));
 
-export const clearStoredAnnotations = async (origin: string) => {
+export const clearAnnotations = async (origin: string) => {
   try {
     const prefix = annotationPrefix(origin);
     const result = await chrome.storage.local.get(null);

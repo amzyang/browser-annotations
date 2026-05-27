@@ -32,16 +32,7 @@ import { createSelection } from "~/sidebar/selection";
 import { formatHref, truncateSelector } from "~/sidebar/utils";
 import { createAnnotation } from "~/sidebar/annotations";
 import type { Annotation as AnnotationType } from "~/sidebar/annotations";
-import {
-  addStoredAnnotation,
-  clearStoredAnnotations,
-  loadState,
-  onStorageChange,
-  removeStoredAnnotations,
-  setStoredAnnotationScreenshot,
-  setStoredWebhookEnabled,
-  setStoredWebhookUrl,
-} from "~/sidebar/storage";
+import * as storage from "~/sidebar/storage";
 import type { SidebarState } from "~/sidebar/storage";
 import { toBatchMd, toMd } from "~/sidebar/output";
 import { writeAnnotationScreenshots } from "~/sidebar/screenshot-files";
@@ -137,7 +128,7 @@ const Sidebar = () => {
     });
   };
 
-  const [storedState] = createResource(origin, loadState);
+  const [storedState] = createResource(origin, storage.loadState);
   createEffect(() => {
     const state = storedState();
     if (state) applyStoredState(state);
@@ -151,7 +142,7 @@ const Sidebar = () => {
   const handleClearAll = () => {
     const currentOrigin = origin();
     stopBatching();
-    if (currentOrigin) void clearStoredAnnotations(currentOrigin);
+    if (currentOrigin) void storage.clearAnnotations(currentOrigin);
   };
 
   const requireSelectionAndContext = async () => {
@@ -205,7 +196,7 @@ const Sidebar = () => {
         setHasSubmitted(false);
         stopBatching();
       });
-      if (currentOrigin) void removeStoredAnnotations(currentOrigin, annotationIds);
+      if (currentOrigin) void storage.removeAnnotations(currentOrigin, annotationIds);
       refs.form.reset();
     }, SUCCESS_FEEDBACK_MS);
   };
@@ -402,7 +393,7 @@ const Sidebar = () => {
           context: required.context,
         });
 
-        const savedAnnotation = addStoredAnnotation(annotationOrigin, annotation);
+        const savedAnnotation = storage.addAnnotation(annotationOrigin, annotation);
 
         if (attachScreenshot()) {
           captureCroppedScreenshot(
@@ -411,7 +402,7 @@ const Sidebar = () => {
           ).then(async (screenshot) => {
             if (!screenshot) return;
             await savedAnnotation;
-            void setStoredAnnotationScreenshot(annotationOrigin, annotation, screenshot);
+            void storage.setAnnotationScreenshot(annotationOrigin, annotation, screenshot);
           });
         }
         setAttachScreenshot(false);
@@ -479,7 +470,7 @@ const Sidebar = () => {
     window.addEventListener("keydown", handleKeydown);
 
     // Storage changes are a shared-state projection, not write triggers.
-    removeStorageListener = onStorageChange(origin, (state) => {
+    removeStorageListener = storage.onStorageChange(origin, (state) => {
       if (isDisposed) {
         return;
       }
@@ -521,7 +512,7 @@ const Sidebar = () => {
                 const currentOrigin = origin();
                 setWebhookFailed(false);
                 setIsEditingWebhook(false);
-                if (currentOrigin) void setStoredWebhookEnabled(currentOrigin, next);
+                if (currentOrigin) void storage.setWebhookEnabled(currentOrigin, next);
               }}
             >
               <span
@@ -575,7 +566,7 @@ const Sidebar = () => {
                   const next = refs.webhookUrlInput.value;
                   const currentOrigin = origin();
                   setIsEditingWebhook(false);
-                  if (currentOrigin) void setStoredWebhookUrl(currentOrigin, next);
+                  if (currentOrigin) void storage.setWebhookUrl(currentOrigin, next);
                 }}
                 // Close when focus leaves the form, but not when moving between form elements (e.g. tabbing to submit)
                 onFocusOut={(e) => {
@@ -698,7 +689,8 @@ const Sidebar = () => {
                   isInBatch={isBatching() && batchAnnotationIds().includes(annotation.id)}
                   onRemove={() => {
                     const currentOrigin = origin();
-                    if (currentOrigin) void removeStoredAnnotations(currentOrigin, [annotation.id]);
+                    if (currentOrigin)
+                      void storage.removeAnnotations(currentOrigin, [annotation.id]);
                   }}
                   onExclude={() =>
                     setBatchedAnnotationIds((a) => a && a.filter((id) => id !== annotation.id))
