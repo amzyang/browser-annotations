@@ -411,7 +411,39 @@ function getSelectionContextPayload() {
       return { framework: "solid" };
     };
 
+    /**
+     * Reads the `data-insp-path` attribute (`filepath:line:column[:name]`) injected at
+     * build time by code-inspector-plugin. Path is absolute when the plugin sets
+     * `pathType: "absolute"`, otherwise project-relative. Walked first because React 19
+     * dropped `fiber._debugSource`, so the fiber resolver below can only recover an
+     * origin-relative `_debugStack` location — which would short-circuit the chain
+     * before this absolute one.
+     *
+     * code-inspector is framework-agnostic, so `framework` here is a best-effort label;
+     * it's informational only and nothing downstream branches on it.
+     */
+    const getInjectedSourceContext = (): SourceContext | undefined => {
+      let next: Element | null = element;
+
+      while (next) {
+        const value = next.getAttribute?.("data-insp-path");
+        const match = value?.match(/^(.+?):(\d+):(\d+)(?::.*)?$/);
+
+        if (match && !match[1]!.includes("/node_modules/")) {
+          return {
+            framework: "react",
+            location: { file: match[1]!, line: Number(match[2]!), column: Number(match[3]!) },
+          };
+        }
+
+        next = getParentElement(next);
+      }
+
+      return undefined;
+    };
+
     return (
+      getInjectedSourceContext() ??
       getSvelteSourceContext() ??
       getReactSourceContext() ??
       getVueSourceContext() ??
