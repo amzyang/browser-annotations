@@ -7,8 +7,15 @@ const port = Number.parseInt(process.argv[2] || "3330", 10);
 const dir = await mkdtemp(join(tmpdir(), "browser-annotations-"));
 const re = /!\[([^\]]*)\]\(data:image\/(\w+);base64,([A-Za-z0-9+/=]+)\)/g;
 
+const isAllowedOrigin = (origin) => !origin || origin.startsWith("chrome-extension://");
+
 const server = createServer(async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+
+  if (!isAllowedOrigin(origin)) return res.writeHead(403).end();
+
+  if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 

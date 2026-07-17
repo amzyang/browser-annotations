@@ -55,8 +55,13 @@ async function saveMarkdownScreenshots(markdown: string): Promise<string> {
   return result;
 }
 
-function setCorsHeaders(res: ServerResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+function isAllowedOrigin(origin: string | undefined): boolean {
+  return !origin || origin.startsWith("chrome-extension://");
+}
+
+function setCorsHeaders(res: ServerResponse, origin: string | undefined) {
+  if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
@@ -108,7 +113,14 @@ const mcpServer = new Server(
 
 mcpServer.oninitialized = async () => {
   const server = createServer(async (req, res) => {
-    setCorsHeaders(res);
+    const origin = req.headers.origin;
+
+    if (!isAllowedOrigin(origin)) {
+      res.writeHead(403).end();
+      return;
+    }
+
+    setCorsHeaders(res, origin);
 
     if (req.method === "OPTIONS") {
       res.writeHead(204).end();
