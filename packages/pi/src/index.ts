@@ -19,6 +19,10 @@ type RuntimeState = {
   port: number;
 };
 
+function isAllowedOrigin(origin: string | undefined): boolean {
+  return !origin || origin.startsWith("chrome-extension://");
+}
+
 async function readBody(req: IncomingMessage): Promise<string> {
   const chunks: Buffer[] = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -179,7 +183,15 @@ export default function browserAnnotationsExtension(pi: ExtensionAPI) {
 
   function createAnnotationServer() {
     return createServer(async (req, res) => {
-      res.setHeader("Access-Control-Allow-Origin", "*");
+      const origin = req.headers.origin;
+
+      if (!isAllowedOrigin(origin)) {
+        res.writeHead(403).end();
+        return;
+      }
+
+      if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
       res.setHeader("Access-Control-Allow-Methods", "POST, GET");
       res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
